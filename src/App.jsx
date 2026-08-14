@@ -625,6 +625,7 @@ export default function App() {
 
           <SubstitutesBench
             bench={bench}
+            pitchPlayers={players}
             selectedSubId={selectedSubId}
             onSelectSub={(sub) => {
               if (sub) {
@@ -656,6 +657,7 @@ export default function App() {
             onChangeFormation={handleChangeFormation}
             onLoadPreset={handleLoadPreset}
             players={players}
+            bench={bench}
             selectedPlayer={selectedPlayer}
             onUpdatePlayer={handleUpdatePlayer}
             kitStyle={kitStyle}
@@ -675,6 +677,7 @@ export default function App() {
             onLoadSavedSquad={handleLoadSavedSquad}
             onDeleteSavedSquad={handleDeleteSavedSquad}
             onSwapPlayers={handleSwapPitchPlayers}
+            onSwapWithPitch={handleSwapSubWithPitch}
           />
         </div>
       </main>
