@@ -561,13 +561,22 @@ export default function App() {
             teamInfo={teamInfo}
             setTeamInfo={setTeamInfo}
             players={players}
+            bench={bench}
             selectedPlayerId={selectedPlayerId}
+            selectedSubId={selectedSubId}
             onSelectPlayer={(p) => {
               setSelectedPlayerId(p?.id || p);
               setSelectedSubId(null);
             }}
+            onSelectSub={(sub) => {
+              setSelectedSubId(sub ? sub.id : null);
+              setSelectedPlayerId(null);
+            }}
+            onAddSub={handleAddSub}
+            onRemoveSub={handleRemoveSub}
             formationId={formationId}
             onSwapPlayers={handleSwapPitchPlayers}
+            onSwapWithPitch={handleSwapSubWithPitch}
           />
         </div>
 
@@ -585,6 +594,7 @@ export default function App() {
             }}
             onUpdatePlayerPosition={handleUpdatePlayerPosition}
             onSwapPlayers={handleSwapPitchPlayers}
+            onSwapSubWithPitch={handleSwapSubWithPitch}
             kitStyle={kitStyle}
             gkKitStyle={gkKitStyle}
             pitchTheme={pitchTheme}

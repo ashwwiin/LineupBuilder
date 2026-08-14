@@ -10,6 +10,7 @@ export default function PitchCanvas({
   onSelectPlayer,
   onUpdatePlayerPosition,
   onSwapPlayers,
+  onSwapSubWithPitch,
   kitStyle,
   gkKitStyle,
   pitchTheme = 'classic',
@@ -22,6 +23,68 @@ export default function PitchCanvas({
   const [activeDragId, setActiveDragId] = useState(null);
   const [hoveredSwapId, setHoveredSwapId] = useState(null);
   const isScore90 = pitchTheme === 'score90';
+
+  // HTML5 Drag Over Handler for dragging items from left roster panel
+  const handleHTML5DragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    const pitchElement = pitchRef.current;
+    if (!pitchElement) return;
+
+    const rect = pitchElement.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    // Check proximity to pitch players
+    const nearby = players.find((p) => {
+      const dx = p.x - x;
+      const dy = p.y - y;
+      return Math.sqrt(dx * dx + dy * dy) < 9.5;
+    });
+
+    if (nearby) {
+      setHoveredSwapId(nearby.id);
+    } else {
+      setHoveredSwapId(null);
+    }
+  };
+
+  // HTML5 Drop Handler when dropping a roster/sub item onto pitch
+  const handleHTML5Drop = (e) => {
+    e.preventDefault();
+    setHoveredSwapId(null);
+
+    const pitchElement = pitchRef.current;
+    if (!pitchElement) return;
+
+    const rawData = e.dataTransfer.getData('application/json');
+    if (!rawData) return;
+
+    try {
+      const { id, isSub } = JSON.parse(rawData);
+      const rect = pitchElement.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      // Find target pitch player under drop point
+      const targetPlayer = players.find((p) => {
+        const dx = p.x - x;
+        const dy = p.y - y;
+        return Math.sqrt(dx * dx + dy * dy) < 10;
+      });
+
+      if (targetPlayer) {
+        if (isSub && onSwapSubWithPitch) {
+          onSwapSubWithPitch(id, targetPlayer.id);
+        } else if (!isSub && onSwapPlayers) {
+          onSwapPlayers(id, targetPlayer.id);
+        }
+      }
+    } catch (err) {
+      console.error('Error handling HTML5 drop:', err);
+    }
+  };
 
   // Pointer event drag handler with Drag-to-Swap detection
   const handlePointerStart = (e, playerId) => {
@@ -157,6 +220,9 @@ export default function PitchCanvas({
         {/* PITCH SURFACE */}
         <div
           ref={pitchRef}
+          onDragOver={handleHTML5DragOver}
+          onDragLeave={() => setHoveredSwapId(null)}
+          onDrop={handleHTML5Drop}
           className={`w-full h-full relative select-none ${theme.bgClass} ${
             is3DView || isScore90 ? 'pitch-3d-tilt' : ''
           }`}
