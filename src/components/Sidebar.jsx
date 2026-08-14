@@ -125,7 +125,7 @@ export default function Sidebar({
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="text-[11px] sm:text-xs font-bold">{tab.label}</span>
             </button>
           );
         })}
@@ -415,7 +415,7 @@ export default function Sidebar({
                 </div>
 
                 {/* SWAP TACTICAL PLAYER SPOT */}
-                {(onSwapPlayers || onSwapWithPitch) && (() => {
+                {(onSwapPlayers || onSwapWithPitch) && selectedPlayer && (() => {
                   const isSubSelected = bench.some((b) => b.id === selectedPlayer.id);
 
                   return (

@@ -9,7 +9,7 @@ import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { FORMATIONS } from './data/formations';
 import { SQUAD_PRESETS } from './data/presets';
 import { serializeSquadState, deserializeSquadState } from './utils/serialization';
-import { Users, LayoutGrid, Sliders } from 'lucide-react';
+import { Users, LayoutGrid, Sliders, X } from 'lucide-react';
 
 export default function App() {
   const exportRef = useRef(null);
@@ -86,6 +86,8 @@ export default function App() {
   const [isHalfPitch, setIsHalfPitch] = useState(false);
   const [aspectRatio, setAspectRatio] = useState('square');
   const [activeTab, setActiveTab] = useState('squad');
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [isMobileRosterOpen, setIsMobileRosterOpen] = useState(false);
 
   // Saved Squads LocalStorage / Cloud State
   const [savedSquads, setSavedSquads] = useState(() => {
@@ -523,51 +525,31 @@ export default function App() {
         }}
       />
 
-      {/* MOBILE / TABLET SEGMENTED TAB SELECTOR (Visible on screens < 1280px) */}
-      <div className="xl:hidden max-w-[1600px] w-full mx-auto px-4 pt-3">
-        <div className="flex items-center justify-center p-1 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
+      {/* MOBILE / TABLET QUICK ACTION BAR (Visible on screens < 1280px) */}
+      <div className="xl:hidden max-w-[1600px] w-full mx-auto px-3 pt-3">
+        <div className="flex items-center gap-2 p-1.5 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
           <button
-            onClick={() => setMobileTab('roster')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              mobileTab === 'roster'
-                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={() => setIsMobileRosterOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-bold transition-all cursor-pointer shadow-sm"
           >
-            <Users className="w-4 h-4" />
-            <span>XI Roster</span>
+            <Users className="w-4 h-4 text-emerald-400" />
+            <span>📋 Roster & Subs</span>
           </button>
 
           <button
-            onClick={() => setMobileTab('pitch')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              mobileTab === 'pitch'
-                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-            <span>Tactical Pitch</span>
-          </button>
-
-          <button
-            onClick={() => setMobileTab('sidebar')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              mobileTab === 'sidebar'
-                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={() => setIsMobileControlsOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition-all cursor-pointer shadow-lg shadow-emerald-500/20"
           >
             <Sliders className="w-4 h-4" />
-            <span>Controls</span>
+            <span>⚙️ Lineup Controls</span>
           </button>
         </div>
       </div>
 
       {/* MAIN APP WORKSPACE CONTENT */}
       <main className="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-6 flex flex-col xl:flex-row gap-4 sm:gap-6 overflow-hidden">
-        {/* LEFT COLUMN: ROSTER LIST PANEL */}
-        <div className={`w-full xl:w-72 shrink-0 ${mobileTab === 'roster' ? 'block' : 'hidden xl:block'}`}>
+        {/* DESKTOP LEFT COLUMN: ROSTER LIST PANEL */}
+        <div className="hidden xl:block w-72 shrink-0">
           <LeftRosterPanel
             teamInfo={teamInfo}
             setTeamInfo={setTeamInfo}
@@ -579,14 +561,12 @@ export default function App() {
               setSelectedPlayerId(p?.id || p);
               setSelectedSubId(null);
               setActiveTab('player');
-              if (window.innerWidth < 1280) setMobileTab('sidebar');
             }}
             onSelectSub={(sub) => {
               if (sub) {
                 setSelectedSubId(sub.id);
                 setSelectedPlayerId(null);
                 setActiveTab('player');
-                if (window.innerWidth < 1280) setMobileTab('sidebar');
               }
             }}
             onAddSub={handleAddSub}
@@ -597,19 +577,22 @@ export default function App() {
           />
         </div>
 
-        {/* CENTER COLUMN: MAIN PITCH CANVAS & BENCH PANEL */}
-        <div className={`flex-1 flex flex-col gap-4 min-w-0 ${mobileTab === 'pitch' ? 'block' : 'hidden xl:flex'}`}>
+        {/* CENTER COLUMN: MAIN PITCH CANVAS & BENCH PANEL (ALWAYS VISIBLE & INTERACTIVE) */}
+        <div className="flex-1 flex flex-col gap-4 min-w-0">
           <PitchCanvas
             exportRef={exportRef}
             teamInfo={teamInfo}
             formationId={formationId}
             players={players}
             selectedPlayerId={selectedPlayerId}
-            onSelectPlayer={(id) => {
-              setSelectedPlayerId(id);
+            onSelectPlayer={(p) => {
+              const pId = typeof p === 'object' && p !== null ? p.id : p;
+              setSelectedPlayerId(pId);
               setSelectedSubId(null);
               setActiveTab('player');
-              if (window.innerWidth < 1280) setMobileTab('sidebar');
+              if (window.innerWidth < 1280) {
+                setIsMobileControlsOpen(true);
+              }
             }}
             onUpdatePlayerPosition={handleUpdatePlayerPosition}
             onSwapPlayers={handleSwapPitchPlayers}
@@ -629,10 +612,13 @@ export default function App() {
             selectedSubId={selectedSubId}
             onSelectSub={(sub) => {
               if (sub) {
-                setSelectedSubId(sub.id);
+                const subId = typeof sub === 'object' ? sub.id : sub;
+                setSelectedSubId(subId);
                 setSelectedPlayerId(null);
                 setActiveTab('player');
-                if (window.innerWidth < 1280) setMobileTab('sidebar');
+                if (window.innerWidth < 1280) {
+                  setIsMobileControlsOpen(true);
+                }
               } else {
                 setSelectedSubId(null);
               }
@@ -646,8 +632,8 @@ export default function App() {
           />
         </div>
 
-        {/* RIGHT COLUMN: CONTROL SIDEBAR PANEL */}
-        <div className={`w-full xl:w-96 shrink-0 ${mobileTab === 'sidebar' ? 'block' : 'hidden xl:block'}`}>
+        {/* DESKTOP RIGHT COLUMN: CONTROL SIDEBAR PANEL */}
+        <div className="hidden xl:block w-96 shrink-0">
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -681,6 +667,112 @@ export default function App() {
           />
         </div>
       </main>
+
+      {/* MOBILE FULL-HEIGHT LEFT SLIDE-OVER DRAWER FOR ROSTER & BENCH */}
+      {isMobileRosterOpen && (
+        <div className="xl:hidden fixed inset-0 z-50 flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-sm h-full bg-slate-900 border-r border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-black text-slate-100 uppercase tracking-wider my-0">
+                  Roster & Bench
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsMobileRosterOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-800 rounded-xl cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <LeftRosterPanel
+              teamInfo={teamInfo}
+              setTeamInfo={setTeamInfo}
+              players={players}
+              bench={bench}
+              selectedPlayerId={selectedPlayerId}
+              selectedSubId={selectedSubId}
+              onSelectPlayer={(p) => {
+                const pId = typeof p === 'object' && p !== null ? p.id : p;
+                setSelectedPlayerId(pId);
+                setSelectedSubId(null);
+                setActiveTab('player');
+                setIsMobileRosterOpen(false);
+                setIsMobileControlsOpen(true);
+              }}
+              onSelectSub={(sub) => {
+                if (sub) {
+                  const subId = typeof sub === 'object' && sub !== null ? sub.id : sub;
+                  setSelectedSubId(subId);
+                  setSelectedPlayerId(null);
+                  setActiveTab('player');
+                  setIsMobileRosterOpen(false);
+                  setIsMobileControlsOpen(true);
+                }
+              }}
+              onAddSub={handleAddSub}
+              onRemoveSub={handleRemoveSub}
+              formationId={formationId}
+              onSwapPlayers={handleSwapPitchPlayers}
+              onSwapWithPitch={handleSwapSubWithPitch}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE FULL-HEIGHT RIGHT SLIDE-OVER DRAWER FOR CONTROLS & PLAYER EDITOR */}
+      {isMobileControlsOpen && (
+        <div className="xl:hidden fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md h-full bg-slate-900 border-l border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-black text-slate-100 uppercase tracking-wider my-0">
+                  Lineup Controls & Editor
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsMobileControlsOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-800 rounded-xl cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <Sidebar
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              teamInfo={teamInfo}
+              setTeamInfo={setTeamInfo}
+              currentFormationId={formationId}
+              onChangeFormation={handleChangeFormation}
+              onLoadPreset={handleLoadPreset}
+              players={players}
+              bench={bench}
+              selectedPlayer={selectedPlayer}
+              onUpdatePlayer={handleUpdatePlayer}
+              kitStyle={kitStyle}
+              setKitStyle={setKitStyle}
+              gkKitStyle={gkKitStyle}
+              setGkKitStyle={setGkKitStyle}
+              pitchTheme={pitchTheme}
+              setPitchTheme={setPitchTheme}
+              is3DView={is3DView}
+              setIs3DView={setIs3DView}
+              isHalfPitch={isHalfPitch}
+              onToggleHalfPitch={handleToggleHalfPitch}
+              aspectRatio={aspectRatio}
+              setAspectRatio={setAspectRatio}
+              savedSquads={savedSquads}
+              onSaveSquad={handleSaveSquad}
+              onLoadSavedSquad={handleLoadSavedSquad}
+              onDeleteSavedSquad={handleDeleteSavedSquad}
+              onSwapPlayers={handleSwapPitchPlayers}
+              onSwapWithPitch={handleSwapSubWithPitch}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

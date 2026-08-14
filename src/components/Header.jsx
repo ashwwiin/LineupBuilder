@@ -391,142 +391,184 @@ export default function Header({
         </div>
       </div>
 
-      {/* MOBILE SLIDE-OUT / POPUP NAVIGATION MENU */}
+      {/* MOBILE FULL-HEIGHT RIGHT SLIDE-OVER NAVIGATION MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[53px] z-50 bg-slate-950/95 backdrop-blur-2xl p-4 flex flex-col justify-between animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="space-y-3">
-            <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider px-1">
-              Account & Tactical Options
-            </div>
-
-            {/* User Account / Login Mobile */}
-            {user ? (
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+        <div className="md:hidden fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-sm h-full bg-slate-950 border-l border-slate-800 p-5 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-300">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black uppercase border border-emerald-500/40">
-                    {user.email ? user.email[0] : 'U'}
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-lg">
+                    T
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-100">{user.email?.split('@')[0]}</span>
-                    <span className="text-[9px] text-slate-400">Cloud Sync Active</span>
-                  </div>
+                  <span className="font-heading font-black text-sm text-slate-100 tracking-wide uppercase">
+                    Tactix Menu
+                  </span>
                 </div>
                 <button
-                  onClick={() => {
-                    onSignOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-slate-950 text-rose-400 border border-slate-800 text-xs font-bold flex items-center gap-1"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5" /> Sign Out
+                  <X className="w-5 h-5" />
                 </button>
               </div>
-            ) : (
+
+              {/* User Account / Login Mobile */}
+              {user ? (
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black uppercase border border-emerald-500/40">
+                      {user.email ? user.email[0] : 'U'}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-100">{user.email?.split('@')[0]}</span>
+                      <span className="text-[9px] text-emerald-400 font-semibold">Cloud Sync Active</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onSignOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-slate-950 text-rose-400 border border-slate-800 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Sign Out
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    onOpenAuthModal();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20 cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Sign In to Cloud Sync</span>
+                </button>
+              )}
+
+              {/* Export Graphics Quick Action */}
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+                <span className="text-[11px] font-bold text-slate-300 flex items-center gap-2">
+                  <Download className="w-4 h-4 text-emerald-400" /> Export High-Res Graphic
+                </span>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleExport('png');
+                    }}
+                    className="p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" /> PNG
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleExport('jpeg');
+                    }}
+                    className="p-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Camera className="w-3.5 h-3.5" /> JPG
+                  </button>
+                </div>
+              </div>
+
+              {/* Pitch View Toggle */}
               <button
                 onClick={() => {
-                  onOpenAuthModal();
+                  onToggleHalfPitch();
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200 cursor-pointer"
               >
-                <User className="w-4 h-4" />
-                <span>Sign In to Cloud Sync</span>
+                <div className="flex items-center gap-2.5">
+                  {isHalfPitch ? <Minimize2 className="w-4 h-4 text-emerald-400" /> : <Maximize2 className="w-4 h-4 text-emerald-400" />}
+                  <span>Pitch Mode</span>
+                </div>
+                <span className="text-[11px] font-mono text-emerald-400">
+                  {isHalfPitch ? 'Half Pitch' : 'Full Pitch'}
+                </span>
               </button>
-            )}
 
-            {/* Pitch View Toggle */}
-            <button
-              onClick={() => {
-                onToggleHalfPitch();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
-            >
-              <div className="flex items-center gap-2.5">
-                {isHalfPitch ? <Minimize2 className="w-4 h-4 text-emerald-400" /> : <Maximize2 className="w-4 h-4 text-emerald-400" />}
-                <span>Pitch Mode</span>
-              </div>
-              <span className="text-[11px] font-mono text-emerald-400">
-                {isHalfPitch ? 'Half Pitch' : 'Full Pitch'}
-              </span>
-            </button>
-
-            {/* Save Lineup */}
-            <button
-              onClick={() => {
-                handleQuickSave();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
-            >
-              <div className="flex items-center gap-2.5">
-                <Bookmark className="w-4 h-4 text-amber-400" />
-                <span>Save Squad Lineup</span>
-              </div>
-              <span className="text-[10px] text-slate-400">LocalStorage</span>
-            </button>
-
-            {/* Share Link */}
-            <button
-              onClick={() => {
-                handleCopyLink();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
-            >
-              <div className="flex items-center gap-2.5">
-                <Share2 className="w-4 h-4 text-sky-400" />
-                <span>Share Squad Link</span>
-              </div>
-              <span className="text-[10px] text-emerald-400">{copied ? 'Copied!' : 'Copy URL'}</span>
-            </button>
-
-            {/* Saved Squads Section */}
-            {savedSquads.length > 0 && (
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                <div className="text-[11px] font-bold text-slate-300 flex items-center gap-2">
-                  <FolderOpen className="w-4 h-4 text-sky-400" />
-                  Load Saved Squad ({savedSquads.length})
+              {/* Save Lineup */}
+              <button
+                onClick={() => {
+                  handleQuickSave();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200 cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Bookmark className="w-4 h-4 text-amber-400" />
+                  <span>Save Squad Lineup</span>
                 </div>
-                <div className="space-y-1 max-h-36 overflow-y-auto pt-1">
-                  {savedSquads.map((squad) => (
-                    <button
-                      key={squad.id}
-                      onClick={() => {
-                        onLoadSavedSquad(squad);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left p-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center justify-between"
-                    >
-                      <span className="truncate">{squad.name}</span>
-                      <span className="text-[9px] text-emerald-400 font-mono">{squad.formationId}</span>
-                    </button>
-                  ))}
+                <span className="text-[10px] text-slate-400">LocalStorage</span>
+              </button>
+
+              {/* Share Link */}
+              <button
+                onClick={() => {
+                  handleCopyLink();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200 cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Share2 className="w-4 h-4 text-sky-400" />
+                  <span>Share Squad Link</span>
                 </div>
-              </div>
-            )}
+                <span className="text-[10px] text-emerald-400">{copied ? 'Copied!' : 'Copy URL'}</span>
+              </button>
 
-            {/* Reset Squad */}
-            <button
-              onClick={() => {
-                onResetSquad();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-rose-400 hover:bg-rose-500/10"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Reset Lineup to Default</span>
-            </button>
-          </div>
+              {/* Saved Squads Section */}
+              {savedSquads.length > 0 && (
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                  <div className="text-[11px] font-bold text-slate-300 flex items-center gap-2">
+                    <FolderOpen className="w-4 h-4 text-sky-400" />
+                    Load Saved Squad ({savedSquads.length})
+                  </div>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pt-1">
+                    {savedSquads.map((squad) => (
+                      <button
+                        key={squad.id}
+                        onClick={() => {
+                          onLoadSavedSquad(squad);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left p-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center justify-between cursor-pointer"
+                      >
+                        <span className="truncate">{squad.name}</span>
+                        <span className="text-[9px] text-emerald-400 font-mono">{squad.formationId}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-            <span className="text-[11px] text-slate-500 font-medium">Tactix PRO • Tactical Pitch</span>
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold border border-slate-800"
-            >
-              Close Menu
-            </button>
+              {/* Reset Squad */}
+              <button
+                onClick={() => {
+                  onResetSquad();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-rose-400 hover:bg-rose-500/10 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Reset Lineup to Default</span>
+              </button>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+              <span className="text-[11px] text-slate-500 font-medium">Tactix PRO • Mobile</span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold border border-slate-800 cursor-pointer"
+              >
+                Close Menu
+              </button>
+            </div>
           </div>
         </div>
       )}
