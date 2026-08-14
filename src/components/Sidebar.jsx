@@ -49,7 +49,9 @@ export default function Sidebar({
   onDeleteSavedSquad,
   onSwapPlayers,
   bench = [],
-  onSwapWithPitch
+  onSwapWithPitch,
+  onSelectPlayer,
+  onSelectSub
 }) {
   const [newSquadName, setNewSquadName] = useState('');
   const [cropImageSrc, setCropImageSrc] = useState(null);
@@ -80,7 +82,7 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-full shrink-0 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col h-full overflow-hidden select-none">
+    <div className="w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col h-full min-h-0 select-none">
       {/* IMAGE ZOOM & CROP MODAL */}
       {cropImageSrc && (
         <ImageZoomModal
@@ -105,7 +107,7 @@ export default function Sidebar({
       )}
 
       {/* NAVIGATION TABS HEADER */}
-      <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-4">
+      <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-3 sm:mb-4 shrink-0">
         {[
           { id: 'squad', label: 'Squad', icon: Users },
           { id: 'player', label: 'Player', icon: UserCheck },
@@ -118,21 +120,21 @@ export default function Sidebar({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-1.5 sm:px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
-              <span className="text-[11px] sm:text-xs font-bold">{tab.label}</span>
+              <span className="text-[10px] sm:text-xs font-bold">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
       {/* TAB CONTENT PANELS */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4 scrollbar-thin">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-4 scrollbar-thin">
         {/* ==================== TAB 1: SQUAD FORMATION & PRESETS ==================== */}
         {activeTab === 'squad' && (
           <div className="space-y-4">
@@ -469,8 +471,58 @@ export default function Sidebar({
                 })()}
               </div>
             ) : (
-              <div className="text-center py-8 text-xs text-slate-500 italic bg-slate-950/40 p-4 rounded-xl border border-slate-800">
-                Click on any player node on the pitch to customize their name, photo, number, and position.
+              <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                    Select Player to Edit
+                  </span>
+                  <span className="text-[10px] text-slate-400">{players.length} Pitch + {bench.length} Subs</span>
+                </div>
+                <p className="text-[11px] text-slate-400 my-0">
+                  Tap any player below or on the pitch canvas to customize their details:
+                </p>
+                <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                  <div className="text-[10px] font-black uppercase text-emerald-400 pt-1">Starting XI</div>
+                  {players.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => onSelectPlayer && onSelectPlayer(p)}
+                      className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-semibold cursor-pointer transition-all"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] flex items-center justify-center border border-emerald-500/30 shrink-0">
+                          {p.number}
+                        </div>
+                        <span className="truncate">{p.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 shrink-0">
+                        {p.pos}
+                      </span>
+                    </button>
+                  ))}
+                  {bench.length > 0 && (
+                    <>
+                      <div className="text-[10px] font-black uppercase text-amber-400 pt-2">Substitutes Bench</div>
+                      {bench.map((sub) => (
+                        <button
+                          key={sub.id}
+                          onClick={() => onSelectSub && onSelectSub(sub)}
+                          className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-semibold cursor-pointer transition-all"
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 font-bold text-[10px] flex items-center justify-center border border-amber-500/30 shrink-0">
+                              {sub.number}
+                            </div>
+                            <span className="truncate">{sub.name}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-amber-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 shrink-0">
+                            SUB
+                          </span>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ZoomIn, ZoomOut, Check, X, Move, RotateCcw } from 'lucide-react';
 
 export default function ImageZoomModal({
@@ -28,8 +29,8 @@ export default function ImageZoomModal({
     });
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col items-center select-none">
         {/* MODAL HEADER */}
         <div className="w-full flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
@@ -151,6 +152,7 @@ export default function ImageZoomModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

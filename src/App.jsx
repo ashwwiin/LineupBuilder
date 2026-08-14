@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Header from './components/Header';
 import PitchCanvas from './components/PitchCanvas';
 import LeftRosterPanel from './components/LeftRosterPanel';
@@ -539,7 +540,12 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => setIsMobileControlsOpen(true)}
+            onClick={() => {
+              if (!selectedPlayerId && !selectedSubId) {
+                setActiveTab('squad');
+              }
+              setIsMobileControlsOpen(true);
+            }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition-all cursor-pointer shadow-lg shadow-emerald-500/20"
           >
             <Sliders className="w-4 h-4" />
@@ -666,127 +672,159 @@ export default function App() {
             onDeleteSavedSquad={handleDeleteSavedSquad}
             onSwapPlayers={handleSwapPitchPlayers}
             onSwapWithPitch={handleSwapSubWithPitch}
+            onSelectPlayer={(p) => {
+              setSelectedPlayerId(p?.id || p);
+              setSelectedSubId(null);
+              setActiveTab('player');
+            }}
+            onSelectSub={(sub) => {
+              if (sub) {
+                setSelectedSubId(sub.id);
+                setSelectedPlayerId(null);
+                setActiveTab('player');
+              }
+            }}
           />
         </div>
       </main>
 
       {/* MOBILE FULL-HEIGHT LEFT SLIDE-OVER DRAWER FOR ROSTER & BENCH */}
-      {isMobileRosterOpen && (
-        <div
-          onClick={() => setIsMobileRosterOpen(false)}
-          className="lg:hidden fixed inset-0 z-[90] flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
-        >
+      {isMobileRosterOpen &&
+        createPortal(
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm h-full bg-slate-900 border-r border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-left duration-300"
+            onClick={() => setIsMobileRosterOpen(false)}
+            className="lg:hidden fixed inset-0 z-[9999] flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-black text-slate-100 uppercase tracking-wider my-0">
-                  Roster & Bench
-                </h3>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full sm:max-w-sm h-full bg-slate-900 border-r border-slate-800 p-4 flex flex-col animate-in slide-in-from-left duration-300 shadow-2xl"
+            >
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-black text-slate-100 uppercase tracking-wider my-0">
+                    Roster & Bench
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsMobileRosterOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-800 rounded-xl cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                onClick={() => setIsMobileRosterOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-800 rounded-xl cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex-1 min-h-0 overflow-y-auto">
+                <LeftRosterPanel
+                  teamInfo={teamInfo}
+                  setTeamInfo={setTeamInfo}
+                  players={players}
+                  bench={bench}
+                  selectedPlayerId={selectedPlayerId}
+                  selectedSubId={selectedSubId}
+                  onSelectPlayer={(p) => {
+                    const pId = typeof p === 'object' && p !== null ? p.id : p;
+                    setSelectedPlayerId(pId);
+                    setSelectedSubId(null);
+                    setActiveTab('player');
+                    setIsMobileRosterOpen(false);
+                    setIsMobileControlsOpen(true);
+                  }}
+                  onSelectSub={(sub) => {
+                    if (sub) {
+                      const subId = typeof sub === 'object' && sub !== null ? sub.id : sub;
+                      setSelectedSubId(subId);
+                      setSelectedPlayerId(null);
+                      setActiveTab('player');
+                      setIsMobileRosterOpen(false);
+                      setIsMobileControlsOpen(true);
+                    }
+                  }}
+                  onAddSub={handleAddSub}
+                  onRemoveSub={handleRemoveSub}
+                  formationId={formationId}
+                  onSwapPlayers={handleSwapPitchPlayers}
+                  onSwapWithPitch={handleSwapSubWithPitch}
+                />
+              </div>
             </div>
-            <LeftRosterPanel
-              teamInfo={teamInfo}
-              setTeamInfo={setTeamInfo}
-              players={players}
-              bench={bench}
-              selectedPlayerId={selectedPlayerId}
-              selectedSubId={selectedSubId}
-              onSelectPlayer={(p) => {
-                const pId = typeof p === 'object' && p !== null ? p.id : p;
-                setSelectedPlayerId(pId);
-                setSelectedSubId(null);
-                setActiveTab('player');
-                setIsMobileRosterOpen(false);
-                setIsMobileControlsOpen(true);
-              }}
-              onSelectSub={(sub) => {
-                if (sub) {
-                  const subId = typeof sub === 'object' && sub !== null ? sub.id : sub;
-                  setSelectedSubId(subId);
-                  setSelectedPlayerId(null);
-                  setActiveTab('player');
-                  setIsMobileRosterOpen(false);
-                  setIsMobileControlsOpen(true);
-                }
-              }}
-              onAddSub={handleAddSub}
-              onRemoveSub={handleRemoveSub}
-              formationId={formationId}
-              onSwapPlayers={handleSwapPitchPlayers}
-              onSwapWithPitch={handleSwapSubWithPitch}
-            />
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* MOBILE FULL-HEIGHT RIGHT SLIDE-OVER DRAWER FOR CONTROLS & PLAYER EDITOR */}
-      {isMobileControlsOpen && (
-        <div
-          onClick={() => setIsMobileControlsOpen(false)}
-          className="lg:hidden fixed inset-0 z-[90] flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
-        >
+      {isMobileControlsOpen &&
+        createPortal(
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md h-full bg-slate-900 border-l border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-right duration-300"
+            onClick={() => setIsMobileControlsOpen(false)}
+            className="lg:hidden fixed inset-0 z-[9999] flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
           >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-black text-slate-100 uppercase tracking-wider my-0">
-                  Lineup Controls & Editor
-                </h3>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full sm:max-w-md h-full bg-slate-900 border-l border-slate-800 p-4 flex flex-col animate-in slide-in-from-right duration-300 shadow-2xl"
+            >
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-black text-slate-100 uppercase tracking-wider my-0">
+                    Lineup Controls & Editor
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsMobileControlsOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-800 rounded-xl cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                onClick={() => setIsMobileControlsOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-100 bg-slate-800 rounded-xl cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex-1 min-h-0 overflow-y-auto">
+                <Sidebar
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  teamInfo={teamInfo}
+                  setTeamInfo={setTeamInfo}
+                  currentFormationId={formationId}
+                  onChangeFormation={handleChangeFormation}
+                  onLoadPreset={handleLoadPreset}
+                  players={players}
+                  bench={bench}
+                  selectedPlayer={selectedPlayer}
+                  onUpdatePlayer={handleUpdatePlayer}
+                  kitStyle={kitStyle}
+                  setKitStyle={setKitStyle}
+                  gkKitStyle={gkKitStyle}
+                  setGkKitStyle={setGkKitStyle}
+                  pitchTheme={pitchTheme}
+                  setPitchTheme={setPitchTheme}
+                  is3DView={is3DView}
+                  setIs3DView={setIs3DView}
+                  isHalfPitch={isHalfPitch}
+                  onToggleHalfPitch={handleToggleHalfPitch}
+                  aspectRatio={aspectRatio}
+                  setAspectRatio={setAspectRatio}
+                  savedSquads={savedSquads}
+                  onSaveSquad={handleSaveSquad}
+                  onLoadSavedSquad={handleLoadSavedSquad}
+                  onDeleteSavedSquad={handleDeleteSavedSquad}
+                  onSwapPlayers={handleSwapPitchPlayers}
+                  onSwapWithPitch={handleSwapSubWithPitch}
+                  onSelectPlayer={(p) => {
+                    setSelectedPlayerId(p?.id || p);
+                    setSelectedSubId(null);
+                    setActiveTab('player');
+                  }}
+                  onSelectSub={(sub) => {
+                    if (sub) {
+                      setSelectedSubId(sub.id);
+                      setSelectedPlayerId(null);
+                      setActiveTab('player');
+                    }
+                  }}
+                />
+              </div>
             </div>
-            <Sidebar
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              teamInfo={teamInfo}
-              setTeamInfo={setTeamInfo}
-              currentFormationId={formationId}
-              onChangeFormation={handleChangeFormation}
-              onLoadPreset={handleLoadPreset}
-              players={players}
-              bench={bench}
-              selectedPlayer={selectedPlayer}
-              onUpdatePlayer={handleUpdatePlayer}
-              kitStyle={kitStyle}
-              setKitStyle={setKitStyle}
-              gkKitStyle={gkKitStyle}
-              setGkKitStyle={setGkKitStyle}
-              pitchTheme={pitchTheme}
-              setPitchTheme={setPitchTheme}
-              is3DView={is3DView}
-              setIs3DView={setIs3DView}
-              isHalfPitch={isHalfPitch}
-              onToggleHalfPitch={handleToggleHalfPitch}
-              aspectRatio={aspectRatio}
-              setAspectRatio={setAspectRatio}
-              savedSquads={savedSquads}
-              onSaveSquad={handleSaveSquad}
-              onLoadSavedSquad={handleLoadSavedSquad}
-              onDeleteSavedSquad={handleDeleteSavedSquad}
-              onSwapPlayers={handleSwapPitchPlayers}
-              onSwapWithPitch={handleSwapSubWithPitch}
-            />
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
