@@ -9,6 +9,7 @@ export default function PitchCanvas({
   selectedPlayerId,
   onSelectPlayer,
   onUpdatePlayerPosition,
+  onSwapPlayers,
   kitStyle,
   gkKitStyle,
   pitchTheme = 'classic',
@@ -19,14 +20,22 @@ export default function PitchCanvas({
 }) {
   const pitchRef = useRef(null);
   const [activeDragId, setActiveDragId] = useState(null);
+  const [hoveredSwapId, setHoveredSwapId] = useState(null);
   const isScore90 = pitchTheme === 'score90';
 
-  // Pointer event drag handler
+  // Pointer event drag handler with Drag-to-Swap detection
   const handlePointerStart = (e, playerId) => {
     setActiveDragId(playerId);
 
     const pitchElement = pitchRef.current;
     if (!pitchElement) return;
+
+    // Initial position of dragged player before move
+    const initialPlayer = players.find((p) => p.id === playerId);
+    const startX = initialPlayer ? initialPlayer.x : 50;
+    const startY = initialPlayer ? initialPlayer.y : 50;
+
+    let currentTargetId = null;
 
     const handlePointerMove = (moveEvent) => {
       const rect = pitchElement.getBoundingClientRect();
@@ -36,11 +45,36 @@ export default function PitchCanvas({
       x = Math.max(4, Math.min(96, x));
       y = Math.max(12, Math.min(94, y));
 
+      // Proximity check against all other pitch players (distance < 8.5%)
+      const nearbyPlayer = players.find((p) => {
+        if (p.id === playerId) return false;
+        const dx = p.x - x;
+        const dy = p.y - y;
+        return Math.sqrt(dx * dx + dy * dy) < 8.5;
+      });
+
+      if (nearbyPlayer) {
+        currentTargetId = nearbyPlayer.id;
+        setHoveredSwapId(nearbyPlayer.id);
+      } else {
+        currentTargetId = null;
+        setHoveredSwapId(null);
+      }
+
       onUpdatePlayerPosition(playerId, Math.round(x * 10) / 10, Math.round(y * 10) / 10);
     };
 
     const handlePointerUp = () => {
       setActiveDragId(null);
+      setHoveredSwapId(null);
+
+      if (currentTargetId && onSwapPlayers) {
+        // Revert dragged player position to original spot
+        onUpdatePlayerPosition(playerId, startX, startY);
+        // Execute player spot swap
+        onSwapPlayers(playerId, currentTargetId);
+      }
+
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
@@ -235,6 +269,7 @@ export default function PitchCanvas({
               key={player.id}
               player={player}
               isSelected={selectedPlayerId === player.id}
+              isSwapTarget={hoveredSwapId === player.id}
               onSelect={onSelectPlayer}
               onDragStart={handlePointerStart}
               kitStyle={kitStyle}

@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
 import JerseySVG from './JerseySVG';
+import { ArrowLeftRight } from 'lucide-react';
 
 export default function PlayerNode({
   player,
   isSelected,
+  isSwapTarget,
   onSelect,
   onDragStart,
   kitStyle,
@@ -33,11 +35,18 @@ export default function PlayerNode({
         transform: 'translate(-50%, -50%)',
       }}
       className={`absolute z-20 cursor-grab active:cursor-grabbing transition-transform duration-75 select-none group touch-none ${
-        isSelected ? 'z-30 scale-110' : 'hover:scale-105'
+        isSwapTarget ? 'z-40 scale-125' : isSelected ? 'z-30 scale-110' : 'hover:scale-105'
       }`}
       title={`${player.name} (${player.pos}) - #${player.number}`}
     >
       <div className="flex flex-col items-center">
+        {/* DRAG-TO-SWAP TARGET FLOATING BADGE */}
+        {isSwapTarget && (
+          <div className="absolute -top-7 z-50 bg-emerald-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-2xl flex items-center gap-1 animate-bounce border border-slate-950">
+            <ArrowLeftRight className="w-3 h-3" /> SWAP
+          </div>
+        )}
+
         {/* PLAYER BADGE / PHOTO / JERSEY */}
         <div className="relative flex flex-col items-center justify-center">
           {/* Captain Armband Badge */}
@@ -55,7 +64,9 @@ export default function PlayerNode({
                   ? 'w-11 h-11 sm:w-20 sm:h-20 md:w-24 md:h-24'
                   : 'w-10 h-10 sm:w-16 sm:h-16 md:w-20 md:h-20'
               } ${
-                isSelected
+                isSwapTarget
+                  ? 'border-emerald-400 ring-4 ring-emerald-400 scale-110 shadow-emerald-500/80 animate-pulse'
+                  : isSelected
                   ? 'border-emerald-400 ring-2 sm:ring-4 ring-emerald-500/60 scale-105'
                   : isScore90
                   ? 'border-white shadow-2xl'
@@ -78,7 +89,11 @@ export default function PlayerNode({
           ) : (
             <div
               className={`relative p-0.5 sm:p-1 rounded-xl sm:rounded-2xl transition-all ${
-                isSelected ? 'ring-2 sm:ring-4 ring-emerald-400/60 scale-105' : ''
+                isSwapTarget
+                  ? 'ring-4 ring-emerald-400 scale-110 shadow-emerald-500/80 animate-pulse'
+                  : isSelected
+                  ? 'ring-2 sm:ring-4 ring-emerald-400/60 scale-105'
+                  : ''
               }`}
             >
               <JerseySVG

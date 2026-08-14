@@ -584,6 +584,7 @@ export default function App() {
               setSelectedSubId(null);
             }}
             onUpdatePlayerPosition={handleUpdatePlayerPosition}
+            onSwapPlayers={handleSwapPitchPlayers}
             kitStyle={kitStyle}
             gkKitStyle={gkKitStyle}
             pitchTheme={pitchTheme}
