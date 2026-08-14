@@ -498,7 +498,7 @@ export default function App() {
     : bench.find((b) => b.id === selectedSubId);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="h-screen max-h-screen overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
       {/* HEADER BAR */}
       <Header
         exportRef={exportRef}
@@ -528,7 +528,7 @@ export default function App() {
       />
 
       {/* MOBILE / TABLET QUICK ACTION BAR (Visible on screens < 1024px) */}
-      <div className="lg:hidden max-w-[1600px] w-full mx-auto px-3 pt-3">
+      <div className="shrink-0 lg:hidden max-w-[1600px] w-full mx-auto px-3 pt-3">
         <div className="flex items-center gap-2 p-1.5 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
           <button
             onClick={() => setIsMobileRosterOpen(true)}
@@ -548,10 +548,10 @@ export default function App() {
         </div>
       </div>
 
-      {/* MAIN APP WORKSPACE CONTENT */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-6 flex flex-col lg:flex-row gap-4 sm:gap-6 overflow-hidden">
+      {/* MAIN APP WORKSPACE CONTENT (Fixed 100vh app height) */}
+      <main className="flex-1 min-h-0 max-w-[1600px] w-full mx-auto p-3 sm:p-6 flex flex-col lg:flex-row gap-4 sm:gap-6 overflow-y-auto lg:overflow-hidden">
         {/* DESKTOP / LAPTOP LEFT COLUMN: ROSTER LIST PANEL */}
-        <div className="hidden lg:block w-64 xl:w-72 shrink-0">
+        <div className="hidden lg:block w-64 xl:w-72 shrink-0 h-full overflow-y-auto pr-1">
           <LeftRosterPanel
             teamInfo={teamInfo}
             setTeamInfo={setTeamInfo}
@@ -580,7 +580,7 @@ export default function App() {
         </div>
 
         {/* CENTER COLUMN: MAIN PITCH CANVAS & BENCH PANEL (ALWAYS VISIBLE & INTERACTIVE) */}
-        <div className="flex-1 flex flex-col gap-4 min-w-0">
+        <div className="flex-1 flex flex-col gap-4 min-w-0 h-full overflow-y-auto pr-1">
           <PitchCanvas
             exportRef={exportRef}
             teamInfo={teamInfo}
@@ -635,7 +635,7 @@ export default function App() {
         </div>
 
         {/* DESKTOP / LAPTOP RIGHT COLUMN: CONTROL SIDEBAR PANEL */}
-        <div className="hidden lg:block w-80 xl:w-96 shrink-0">
+        <div className="hidden lg:block w-80 xl:w-96 shrink-0 h-full overflow-y-auto pr-1">
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
