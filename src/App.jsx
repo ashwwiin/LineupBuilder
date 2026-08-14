@@ -4,6 +4,8 @@ import PitchCanvas from './components/PitchCanvas';
 import LeftRosterPanel from './components/LeftRosterPanel';
 import SubstitutesBench from './components/SubstitutesBench';
 import Sidebar from './components/Sidebar';
+import AuthModal from './components/AuthModal';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { FORMATIONS } from './data/formations';
 import { SQUAD_PRESETS } from './data/presets';
 import { serializeSquadState, deserializeSquadState } from './utils/serialization';
@@ -11,6 +13,10 @@ import { Users, LayoutGrid, Sliders } from 'lucide-react';
 
 export default function App() {
   const exportRef = useRef(null);
+
+  // Auth & Cloud User State
+  const [user, setUser] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Responsive View Mode for Mobile/Tablet ('pitch' | 'roster' | 'sidebar')
   const [mobileTab, setMobileTab] = useState('pitch');
@@ -57,8 +63,7 @@ export default function App() {
   const [teamInfo, setTeamInfo] = useState({
     teamName: 'Tactix Dream Team',
     managerName: 'Head Coach',
-    matchInfo: 'Matchday Starting XI',
-    logo: ''
+    matchInfo: 'Matchday Starting XI'
   });
 
   const [formationId, setFormationId] = useState('4-3-3');
@@ -76,13 +81,13 @@ export default function App() {
   const [gkKitStyle, setGkKitStyle] = useState(defaultGkKit);
 
   // Pitch View & Display Settings
-  const [pitchTheme, setPitchTheme] = useState('score90');
+  const [pitchTheme, setPitchTheme] = useState('classic');
   const [is3DView, setIs3DView] = useState(false);
   const [isHalfPitch, setIsHalfPitch] = useState(false);
   const [aspectRatio, setAspectRatio] = useState('square');
   const [activeTab, setActiveTab] = useState('squad');
 
-  // Saved Squads LocalStorage State
+  // Saved Squads LocalStorage / Cloud State
   const [savedSquads, setSavedSquads] = useState(() => {
     try {
       const stored = localStorage.getItem('tactix_saved_squads');
@@ -91,6 +96,70 @@ export default function App() {
       return [];
     }
   });
+
+  // Supabase Auth listener & cloud squad sync
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchCloudSquads(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchCloudSquads(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchCloudSquads = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('squads')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        const mapped = data.map((s) => ({
+          id: s.id,
+          name: s.name,
+          teamInfo: s.team_info,
+          formationId: s.formation_id,
+          kitStyle: s.kit_style,
+          gkKitStyle: s.gk_kit_style,
+          players: s.players,
+          bench: s.bench
+        }));
+        setSavedSquads(mapped);
+      }
+    } catch (e) {
+      console.error('Error fetching cloud squads:', e);
+    }
+  };
+
+  const handleSignOut = async () => {
+    if (isSupabaseConfigured) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSavedSquads([]);
+    }
+  };
+
+  // Save squads to localStorage on update
+  useEffect(() => {
+    try {
+      localStorage.setItem('tactix_saved_squads', JSON.stringify(savedSquads));
+    } catch {
+      // ignore write error
+    }
+  }, [savedSquads]);
 
   // Check URL parameters for shared squad state on load
   useEffect(() => {
@@ -251,7 +320,7 @@ export default function App() {
     };
 
     setPlayers((prev) => prev.map((p) => (p.id === pitchPlayerId ? updatedPitchPlayer : p)));
-    setBench((prev) => prev.map((b) => (b.id === subId ? updatedSub : p)));
+    setBench((prev) => prev.map((b) => (b.id === subId ? updatedSub : b)));
   };
 
   // Load Preset
@@ -300,8 +369,8 @@ export default function App() {
     ]);
   };
 
-  // Save Squad to LocalStorage
-  const handleSaveSquad = (name) => {
+  // Save Squad to LocalStorage & Supabase Cloud
+  const handleSaveSquad = async (name) => {
     const squadName = name || teamInfo.teamName || 'Saved Squad';
     const newSquad = {
       id: Date.now(),
@@ -313,7 +382,25 @@ export default function App() {
       players,
       bench
     };
+
     setSavedSquads((prev) => [newSquad, ...prev]);
+
+    if (isSupabaseConfigured && user) {
+      try {
+        await supabase.from('squads').insert({
+          user_id: user.id,
+          name: squadName,
+          formation_id: formationId,
+          team_info: teamInfo,
+          kit_style: kitStyle,
+          gk_kit_style: gkKitStyle,
+          players: players,
+          bench: bench
+        });
+      } catch (err) {
+        console.error('Error saving squad to Supabase:', err);
+      }
+    }
   };
 
   // Load Saved Squad
@@ -327,8 +414,15 @@ export default function App() {
   };
 
   // Delete Saved Squad
-  const handleDeleteSavedSquad = (id) => {
+  const handleDeleteSavedSquad = async (id) => {
     setSavedSquads((prev) => prev.filter((s) => s.id !== id));
+    if (isSupabaseConfigured && user && typeof id === 'string') {
+      try {
+        await supabase.from('squads').delete().eq('id', id);
+      } catch (err) {
+        console.error('Error deleting squad from Supabase:', err);
+      }
+    }
   };
 
   // Generate Shareable Link
@@ -361,6 +455,19 @@ export default function App() {
         onSaveSquad={handleSaveSquad}
         savedSquads={savedSquads}
         onLoadSavedSquad={handleLoadSavedSquad}
+        user={user}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onSignOut={handleSignOut}
+      />
+
+      {/* AUTHENTICATION MODAL */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={(loggedUser) => {
+          setUser(loggedUser);
+          if (loggedUser) fetchCloudSquads(loggedUser.id);
+        }}
       />
 
       {/* MOBILE / TABLET SEGMENTED TAB SELECTOR (Visible on screens < 1280px) */}
@@ -399,32 +506,39 @@ export default function App() {
             }`}
           >
             <Sliders className="w-4 h-4" />
-            <span>Edit Controls</span>
+            <span>Controls</span>
           </button>
         </div>
       </div>
 
-      {/* MAIN WORKSPACE CONTENT - FLUID RESPONSIVE 3-COLUMN LAYOUT */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 flex flex-col xl:flex-row gap-6 items-stretch justify-center">
-        {/* LEFT COLUMN: STARTING XI SQUAD ROSTER PANEL */}
+      {/* MAIN APP WORKSPACE CONTENT */}
+      <main className="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-6 flex flex-col xl:flex-row gap-4 sm:gap-6 overflow-hidden">
+        {/* LEFT COLUMN: ROSTER LIST PANEL */}
         <div className={`w-full xl:w-72 shrink-0 ${mobileTab === 'roster' ? 'block' : 'hidden xl:block'}`}>
           <LeftRosterPanel
             teamInfo={teamInfo}
+            setTeamInfo={setTeamInfo}
             players={players}
             selectedPlayerId={selectedPlayerId}
-            onSelectPlayer={handleSelectPitchPlayer}
-            formationId={formationId}
+            onSelectPlayer={(id) => {
+              setSelectedPlayerId(id);
+              setSelectedSubId(null);
+            }}
           />
         </div>
 
-        {/* CENTER COLUMN: PITCH CANVAS AREA & BENCH */}
-        <div className={`flex-1 w-full flex flex-col gap-6 items-center ${mobileTab === 'pitch' ? 'block' : 'hidden xl:flex'}`}>
+        {/* CENTER COLUMN: MAIN PITCH CANVAS & BENCH PANEL */}
+        <div className={`flex-1 flex flex-col gap-4 min-w-0 ${mobileTab === 'pitch' ? 'block' : 'hidden xl:flex'}`}>
           <PitchCanvas
             exportRef={exportRef}
             teamInfo={teamInfo}
+            formationId={formationId}
             players={players}
             selectedPlayerId={selectedPlayerId}
-            onSelectPlayer={handleSelectPitchPlayer}
+            onSelectPlayer={(id) => {
+              setSelectedPlayerId(id);
+              setSelectedSubId(null);
+            }}
             onUpdatePlayerPosition={handleUpdatePlayerPosition}
             kitStyle={kitStyle}
             gkKitStyle={gkKitStyle}
@@ -435,20 +549,17 @@ export default function App() {
             aspectRatio={aspectRatio}
           />
 
-          {/* SUBSTITUTES BENCH GRID */}
-          <div className="w-full max-w-2xl">
-            <SubstitutesBench
-              bench={bench}
-              onAddSub={handleAddSub}
-              onRemoveSub={handleRemoveSub}
-              onSelectSub={(sub) => setSelectedSubId(sub.id)}
-              selectedSubId={selectedSubId}
-              selectedPitchPlayer={selectedPlayer}
-              onSwapWithPitch={handleSwapSubWithPitch}
-              kitStyle={kitStyle}
-              gkKitStyle={gkKitStyle}
-            />
-          </div>
+          <SubstitutesBench
+            bench={bench}
+            selectedSubId={selectedSubId}
+            onSelectSub={(sub) => setSelectedSubId(sub ? sub.id : null)}
+            onAddSub={handleAddSub}
+            onRemoveSub={handleRemoveSub}
+            onSwapWithPitch={handleSwapSubWithPitch}
+            selectedPitchPlayer={selectedPlayer}
+            kitStyle={kitStyle}
+            gkKitStyle={gkKitStyle}
+          />
         </div>
 
         {/* RIGHT COLUMN: CONTROL SIDEBAR PANEL */}

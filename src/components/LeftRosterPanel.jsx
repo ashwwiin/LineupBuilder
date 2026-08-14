@@ -9,7 +9,7 @@ export default function LeftRosterPanel({
   formationId
 }) {
   return (
-    <div className="w-full lg:w-72 shrink-0 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col justify-between h-full select-none">
+    <div className="w-full shrink-0 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col justify-between h-full select-none">
       <div className="flex flex-col h-full">
         {/* HEADER: Team Crest & Name */}
         <div className="flex items-center gap-3 border-b border-slate-800/90 pb-3.5 mb-3.5">

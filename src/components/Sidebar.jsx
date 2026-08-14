@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import JerseySVG from './JerseySVG';
 import ImageZoomModal from './ImageZoomModal';
+import { SQUAD_PRESETS } from '../data/presets';
 import {
   Users,
   UserCheck,
@@ -74,7 +75,7 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-full lg:w-96 shrink-0 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col h-full overflow-hidden select-none">
+    <div className="w-full shrink-0 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col h-full overflow-hidden select-none">
       {/* IMAGE ZOOM & CROP MODAL */}
       {cropImageSrc && (
         <ImageZoomModal
@@ -164,22 +165,18 @@ export default function Sidebar({
               <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider">
                 Famous Team Presets
               </label>
-              <div className="space-y-1.5">
-                {[
-                  { name: 'Prime Barcelona 2011', id: 'barca-2011' },
-                  { name: 'Real Madrid 3-Peat', id: 'rm-2017' },
-                  { name: 'Man City Treble 2023', id: 'mancity-2023' }
-                ].map((preset) => (
+              <div className="space-y-1.5 max-h-56 overflow-y-auto scrollbar-thin pr-1">
+                {SQUAD_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
-                    onClick={() => {
-                      const found = SQUAD_PRESETS.find((p) => p.id === preset.id);
-                      if (found) onLoadPreset(found);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-between transition-all cursor-pointer"
+                    onClick={() => onLoadPreset(preset)}
+                    className="w-full text-left px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center justify-between transition-all cursor-pointer group"
                   >
-                    <span>{preset.name}</span>
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <div className="flex flex-col truncate pr-2">
+                      <span className="font-bold text-slate-100 group-hover:text-emerald-300 truncate">{preset.name}</span>
+                      <span className="text-[10px] text-emerald-400 font-mono truncate">{preset.matchInfo}</span>
+                    </div>
+                    <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
                   </button>
                 ))}
               </div>
@@ -423,11 +420,48 @@ export default function Sidebar({
         {/* ==================== TAB 3: KIT CUSTOMIZER ==================== */}
         {activeTab === 'kit' && (
           <div className="space-y-4">
+            {/* Quick Kit Presets */}
+            <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+              <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider">
+                Quick Kit Presets
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {[
+                  { name: 'Emerald Classic', primary: '#10b981', secondary: '#064e3b', pattern: 'solid' },
+                  { name: 'Argentina Sky', primary: '#38bdf8', secondary: '#ffffff', pattern: 'stripes' },
+                  { name: 'Barcelona Blaugrana', primary: '#1e3a8a', secondary: '#991b1b', pattern: 'stripes' },
+                  { name: 'Real Pure White', primary: '#ffffff', secondary: '#0284c7', pattern: 'solid' },
+                  { name: 'Brazil Gold', primary: '#eab308', secondary: '#15803d', pattern: 'solid' },
+                  { name: 'Cyber Neon', primary: '#06b6d4', secondary: '#f43f5e', pattern: 'hoops' }
+                ].map((kPreset, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() =>
+                      setKitStyle({
+                        ...kitStyle,
+                        primaryColor: kPreset.primary,
+                        secondaryColor: kPreset.secondary,
+                        sleeveColor: kPreset.primary,
+                        pattern: kPreset.pattern
+                      })
+                    }
+                    className="flex items-center gap-2 p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] font-bold text-slate-200 cursor-pointer"
+                  >
+                    <div
+                      className="w-4 h-4 rounded-full border border-slate-700 shrink-0"
+                      style={{ background: `linear-gradient(135deg, ${kPreset.primary} 50%, ${kPreset.secondary} 50%)` }}
+                    />
+                    <span className="truncate">{kPreset.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Outfield Kit Customizer */}
             <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                  Outfield Kit Customizer
+                  Outfield Kit Colors
                 </span>
                 <JerseySVG
                   primaryColor={kitStyle.primaryColor}
@@ -462,34 +496,57 @@ export default function Sidebar({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">
-                    Primary Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={kitStyle.primaryColor}
-                      onChange={(e) => setKitStyle({ ...kitStyle, primaryColor: e.target.value })}
-                      className="w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer"
-                    />
-                    <span className="text-[11px] font-mono text-slate-300">{kitStyle.primaryColor}</span>
+              {/* Primary Color Picker + Swatches */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-400">
+                  Primary Shirt Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={kitStyle.primaryColor}
+                    onChange={(e) => setKitStyle({ ...kitStyle, primaryColor: e.target.value, sleeveColor: e.target.value })}
+                    className="w-10 h-10 rounded-lg border border-slate-700 bg-transparent cursor-pointer shrink-0"
+                  />
+                  {/* Quick Color Swatches for Mobile */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+                    {['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#06b6d4', '#ffffff', '#0f172a', '#8b5cf6', '#991b1b', '#38bdf8'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setKitStyle({ ...kitStyle, primaryColor: c, sleeveColor: c })}
+                        className={`w-6 h-6 rounded-full border shadow cursor-pointer shrink-0 ${
+                          kitStyle.primaryColor === c ? 'ring-2 ring-emerald-400 scale-110' : 'border-slate-700'
+                        }`}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">
-                    Secondary Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={kitStyle.secondaryColor}
-                      onChange={(e) => setKitStyle({ ...kitStyle, secondaryColor: e.target.value })}
-                      className="w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer"
-                    />
-                    <span className="text-[11px] font-mono text-slate-300">{kitStyle.secondaryColor}</span>
+              {/* Secondary Color Picker + Swatches */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-400">
+                  Secondary Stripe Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={kitStyle.secondaryColor}
+                    onChange={(e) => setKitStyle({ ...kitStyle, secondaryColor: e.target.value })}
+                    className="w-10 h-10 rounded-lg border border-slate-700 bg-transparent cursor-pointer shrink-0"
+                  />
+                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+                    {['#ffffff', '#0f172a', '#064e3b', '#1e3a8a', '#991b1b', '#f59e0b', '#38bdf8', '#0284c7', '#15803d'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setKitStyle({ ...kitStyle, secondaryColor: c })}
+                        className={`w-6 h-6 rounded-full border shadow cursor-pointer shrink-0 ${
+                          kitStyle.secondaryColor === c ? 'ring-2 ring-emerald-400 scale-110' : 'border-slate-700'
+                        }`}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -499,7 +556,7 @@ export default function Sidebar({
             <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                  Goalkeeper Kit
+                  Goalkeeper Kit Colors
                 </span>
                 <JerseySVG
                   primaryColor={gkKitStyle.primaryColor}
@@ -513,34 +570,29 @@ export default function Sidebar({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">
-                    GK Primary Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={gkKitStyle.primaryColor}
-                      onChange={(e) => setGkKitStyle({ ...gkKitStyle, primaryColor: e.target.value })}
-                      className="w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer"
-                    />
-                    <span className="text-[11px] font-mono text-slate-300">{gkKitStyle.primaryColor}</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">
-                    GK Accent Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={gkKitStyle.secondaryColor}
-                      onChange={(e) => setGkKitStyle({ ...gkKitStyle, secondaryColor: e.target.value })}
-                      className="w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer"
-                    />
-                    <span className="text-[11px] font-mono text-slate-300">{gkKitStyle.secondaryColor}</span>
+              {/* GK Primary Color Picker + Swatches */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-400">
+                  GK Main Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={gkKitStyle.primaryColor}
+                    onChange={(e) => setGkKitStyle({ ...gkKitStyle, primaryColor: e.target.value, sleeveColor: e.target.value })}
+                    className="w-10 h-10 rounded-lg border border-slate-700 bg-transparent cursor-pointer shrink-0"
+                  />
+                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+                    {['#f59e0b', '#10b981', '#06b6d4', '#ec4899', '#8b5cf6', '#ffffff', '#0f172a', '#e11d48'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setGkKitStyle({ ...gkKitStyle, primaryColor: c, sleeveColor: c })}
+                        className={`w-6 h-6 rounded-full border shadow cursor-pointer shrink-0 ${
+                          gkKitStyle.primaryColor === c ? 'ring-2 ring-amber-400 scale-110' : 'border-slate-700'
+                        }`}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -622,7 +674,6 @@ export default function Sidebar({
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'classic', label: 'Classic Grass' },
-                  { id: 'score90', label: 'Score 90 Graphic' },
                   { id: 'dark', label: 'Tactical Dark' },
                   { id: 'cyber', label: 'Cyber Stadium' },
                   { id: 'blueprint', label: 'Tactical Grid' },

@@ -1,59 +1,17 @@
 export const SQUAD_PRESETS = [
   {
-    id: 'real-madrid-2024',
-    name: 'Real Madrid (UCL Winners 2024)',
-    teamName: 'Real Madrid CF',
-    managerName: 'Carlo Ancelotti',
-    matchInfo: 'UEFA Champions League Final 2024',
-    formationId: '4-3-3',
-    kitStyle: {
-      primaryColor: '#ffffff',
-      secondaryColor: '#cca43b',
-      sleeveColor: '#ffffff',
-      collarColor: '#cca43b',
-      pattern: 'solid',
-      numberColor: '#1e293b'
-    },
-    gkKitStyle: {
-      primaryColor: '#10b981',
-      secondaryColor: '#047857',
-      pattern: 'sleeves-accent',
-      numberColor: '#ffffff'
-    },
-    players: [
-      { id: 1, name: 'Thibaut Courtois', number: 1, pos: 'GK', rating: 90, isGoalkeeper: true, isCaptain: false, photo: '' },
-      { id: 2, name: 'Dani Carvajal', number: 2, pos: 'RB', rating: 86, isCaptain: false, photo: '' },
-      { id: 3, name: 'Antonio Rüdiger', number: 22, pos: 'CB', rating: 88, isCaptain: false, photo: '' },
-      { id: 4, name: 'Nacho Fernández', number: 6, pos: 'CB', rating: 83, isCaptain: true, photo: '' },
-      { id: 5, name: 'Ferland Mendy', number: 23, pos: 'LB', rating: 84, isCaptain: false, photo: '' },
-      { id: 6, name: 'Fede Valverde', number: 15, pos: 'CDM', rating: 89, isCaptain: false, photo: '' },
-      { id: 7, name: 'Eduardo Camavinga', number: 12, pos: 'CM', rating: 85, isCaptain: false, photo: '' },
-      { id: 8, name: 'Toni Kroos', number: 8, pos: 'CM', rating: 90, isCaptain: false, photo: '' },
-      { id: 9, name: 'Rodrygo', number: 11, pos: 'RW', rating: 86, isCaptain: false, photo: '' },
-      { id: 10, name: 'Jude Bellingham', number: 5, pos: 'ST', rating: 92, isCaptain: false, photo: '' },
-      { id: 11, name: 'Vinícius Jr.', number: 7, pos: 'LW', rating: 92, isCaptain: false, photo: '' },
-    ],
-    bench: [
-      { id: 101, name: 'Kepa Arrizabalaga', number: 25, pos: 'GK' },
-      { id: 102, name: 'Luka Modrić', number: 10, pos: 'CM' },
-      { id: 103, name: 'Joselu', number: 14, pos: 'ST' },
-      { id: 104, name: 'Brahim Díaz', number: 21, pos: 'RW' },
-      { id: 105, name: 'Éder Militão', number: 3, pos: 'CB' },
-    ]
-  },
-  {
     id: 'barcelona-2011',
     name: 'FC Barcelona (Prime Tiki-Taka 2011)',
     teamName: 'FC Barcelona',
     managerName: 'Pep Guardiola',
-    matchInfo: 'Wembley 2011 Final',
+    matchInfo: 'Wembley UCL Final 2011',
     formationId: '4-3-3',
     kitStyle: {
-      primaryColor: '#a50044',
-      secondaryColor: '#004d98',
-      sleeveColor: '#004d98',
+      primaryColor: '#1e3a8a',
+      secondaryColor: '#991b1b',
+      sleeveColor: '#1e3a8a',
       collarColor: '#edbb00',
-      pattern: 'vertical-stripes',
+      pattern: 'stripes',
       numberColor: '#edbb00'
     },
     gkKitStyle: {
@@ -63,24 +21,105 @@ export const SQUAD_PRESETS = [
       numberColor: '#ffffff'
     },
     players: [
-      { id: 1, name: 'Víctor Valdés', number: 1, pos: 'GK', rating: 86, isGoalkeeper: true, isCaptain: false, photo: '' },
-      { id: 2, name: 'Dani Alves', number: 2, pos: 'RB', rating: 89, isCaptain: false, photo: '' },
-      { id: 3, name: 'Gerard Piqué', number: 3, pos: 'CB', rating: 88, isCaptain: false, photo: '' },
-      { id: 4, name: 'Javier Mascherano', number: 14, pos: 'CB', rating: 85, isCaptain: false, photo: '' },
-      { id: 5, name: 'Éric Abidal', number: 22, pos: 'LB', rating: 84, isCaptain: false, photo: '' },
-      { id: 6, name: 'Sergio Busquets', number: 16, pos: 'CDM', rating: 88, isCaptain: false, photo: '' },
-      { id: 7, name: 'Xavi Hernández', number: 6, pos: 'CM', rating: 92, isCaptain: true, photo: '' },
-      { id: 8, name: 'Andrés Iniesta', number: 8, pos: 'CM', rating: 92, isCaptain: false, photo: '' },
-      { id: 9, name: 'Pedro Rodríguez', number: 17, pos: 'RW', rating: 85, isCaptain: false, photo: '' },
-      { id: 10, name: 'Lionel Messi', number: 10, pos: 'ST', rating: 97, isCaptain: false, photo: '' },
-      { id: 11, name: 'David Villa', number: 7, pos: 'LW', rating: 88, isCaptain: false, photo: '' },
+      { id: 1, name: 'Víctor Valdés', number: 1, pos: 'GK', isGoalkeeper: true, isCaptain: false, photo: '' },
+      { id: 2, name: 'Dani Alves', number: 2, pos: 'RB', isCaptain: false, photo: '' },
+      { id: 3, name: 'Gerard Piqué', number: 3, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 4, name: 'Javier Mascherano', number: 14, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 5, name: 'Éric Abidal', number: 22, pos: 'LB', isCaptain: false, photo: '' },
+      { id: 6, name: 'Sergio Busquets', number: 16, pos: 'CDM', isCaptain: false, photo: '' },
+      { id: 7, name: 'Xavi Hernández', number: 6, pos: 'CM', isCaptain: true, photo: '' },
+      { id: 8, name: 'Andrés Iniesta', number: 8, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 9, name: 'Pedro Rodríguez', number: 17, pos: 'RW', isCaptain: false, photo: '' },
+      { id: 10, name: 'Lionel Messi', number: 10, pos: 'ST', isCaptain: false, photo: '' },
+      { id: 11, name: 'David Villa', number: 7, pos: 'LW', isCaptain: false, photo: '' }
     ],
     bench: [
-      { id: 101, name: 'Oier Olazábal', number: 13, pos: 'GK' },
-      { id: 102, name: 'Carles Puyol', number: 5, pos: 'CB' },
-      { id: 103, name: 'Seydou Keita', number: 15, pos: 'CM' },
-      { id: 104, name: 'Thiago Alcântara', number: 30, pos: 'CM' },
-      { id: 105, name: 'Ibrahim Afellay', number: 20, pos: 'LW' },
+      { id: 101, name: 'Carles Puyol', number: 5, pos: 'CB' },
+      { id: 102, name: 'Seydou Keita', number: 15, pos: 'CM' },
+      { id: 103, name: 'Thiago Alcântara', number: 30, pos: 'CM' },
+      { id: 104, name: 'Ibrahim Afellay', number: 20, pos: 'LW' }
+    ]
+  },
+  {
+    id: 'rm-2017',
+    name: 'Real Madrid (3-Peat 2017)',
+    teamName: 'Real Madrid CF',
+    managerName: 'Zinedine Zidane',
+    matchInfo: 'Cardiff UCL Final 2017',
+    formationId: '4-3-3',
+    kitStyle: {
+      primaryColor: '#ffffff',
+      secondaryColor: '#38bdf8',
+      sleeveColor: '#ffffff',
+      collarColor: '#38bdf8',
+      pattern: 'solid',
+      numberColor: '#1e293b'
+    },
+    gkKitStyle: {
+      primaryColor: '#10b981',
+      secondaryColor: '#047857',
+      pattern: 'solid',
+      numberColor: '#ffffff'
+    },
+    players: [
+      { id: 1, name: 'Keylor Navas', number: 1, pos: 'GK', isGoalkeeper: true, isCaptain: false, photo: '' },
+      { id: 2, name: 'Dani Carvajal', number: 2, pos: 'RB', isCaptain: false, photo: '' },
+      { id: 3, name: 'Raphaël Varane', number: 5, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 4, name: 'Sergio Ramos', number: 4, pos: 'CB', isCaptain: true, photo: '' },
+      { id: 5, name: 'Marcelo', number: 12, pos: 'LB', isCaptain: false, photo: '' },
+      { id: 6, name: 'Casemiro', number: 14, pos: 'CDM', isCaptain: false, photo: '' },
+      { id: 7, name: 'Luka Modrić', number: 19, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 8, name: 'Toni Kroos', number: 8, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 9, name: 'Isco', number: 22, pos: 'RW', isCaptain: false, photo: '' },
+      { id: 10, name: 'Karim Benzema', number: 9, pos: 'ST', isCaptain: false, photo: '' },
+      { id: 11, name: 'Cristiano Ronaldo', number: 7, pos: 'LW', isCaptain: false, photo: '' }
+    ],
+    bench: [
+      { id: 101, name: 'Gareth Bale', number: 11, pos: 'RW' },
+      { id: 102, name: 'Marco Asensio', number: 20, pos: 'LW' },
+      { id: 103, name: 'Mateo Kovačić', number: 16, pos: 'CM' },
+      { id: 104, name: 'Nacho Fernández', number: 6, pos: 'CB' }
+    ]
+  },
+  {
+    id: 'mancity-2023',
+    name: 'Man City (Treble Winners 2023)',
+    teamName: 'Manchester City',
+    managerName: 'Pep Guardiola',
+    matchInfo: 'UEFA Champions League Final 2023',
+    formationId: '3-5-2',
+    kitStyle: {
+      primaryColor: '#38bdf8',
+      secondaryColor: '#ffffff',
+      sleeveColor: '#38bdf8',
+      collarColor: '#0f172a',
+      pattern: 'solid',
+      numberColor: '#ffffff'
+    },
+    gkKitStyle: {
+      primaryColor: '#10b981',
+      secondaryColor: '#047857',
+      pattern: 'solid',
+      numberColor: '#ffffff'
+    },
+    players: [
+      { id: 1, name: 'Ederson', number: 31, pos: 'GK', isGoalkeeper: true, isCaptain: false, photo: '' },
+      { id: 2, name: 'Manuel Akanji', number: 25, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 3, name: 'Rúben Dias', number: 3, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 4, name: 'Nathan Aké', number: 6, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 5, name: 'John Stones', number: 5, pos: 'CDM', isCaptain: false, photo: '' },
+      { id: 6, name: 'Rodri', number: 16, pos: 'CDM', isCaptain: false, photo: '' },
+      { id: 7, name: 'Bernardo Silva', number: 20, pos: 'RM', isCaptain: false, photo: '' },
+      { id: 8, name: 'Kevin De Bruyne', number: 17, pos: 'CM', isCaptain: true, photo: '' },
+      { id: 9, name: 'Ilkay Gündogan', number: 8, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 10, name: 'Jack Grealish', number: 10, pos: 'LM', isCaptain: false, photo: '' },
+      { id: 11, name: 'Erling Haaland', number: 9, pos: 'ST', isCaptain: false, photo: '' }
+    ],
+    bench: [
+      { id: 101, name: 'Stefan Ortega', number: 18, pos: 'GK' },
+      { id: 102, name: 'Phil Foden', number: 47, pos: 'CAM' },
+      { id: 103, name: 'Riyad Mahrez', number: 26, pos: 'RW' },
+      { id: 104, name: 'Julián Álvarez', number: 19, pos: 'ST' }
     ]
   },
   {
@@ -91,11 +130,11 @@ export const SQUAD_PRESETS = [
     matchInfo: 'FIFA World Cup Final 2022',
     formationId: '4-3-3',
     kitStyle: {
-      primaryColor: '#75aadb',
+      primaryColor: '#38bdf8',
       secondaryColor: '#ffffff',
-      sleeveColor: '#75aadb',
+      sleeveColor: '#38bdf8',
       collarColor: '#000000',
-      pattern: 'vertical-stripes',
+      pattern: 'stripes',
       numberColor: '#1e293b'
     },
     gkKitStyle: {
@@ -105,24 +144,23 @@ export const SQUAD_PRESETS = [
       numberColor: '#ffffff'
     },
     players: [
-      { id: 1, name: 'Emiliano Martínez', number: 23, pos: 'GK', rating: 88, isGoalkeeper: true, isCaptain: false, photo: '' },
-      { id: 2, name: 'Nahuel Molina', number: 26, pos: 'RB', rating: 82, isCaptain: false, photo: '' },
-      { id: 3, name: 'Cristian Romero', number: 13, pos: 'CB', rating: 86, isCaptain: false, photo: '' },
-      { id: 4, name: 'Nicolas Otamendi', number: 19, pos: 'CB', rating: 84, isCaptain: false, photo: '' },
-      { id: 5, name: 'Nicolas Tagliafico', number: 3, pos: 'LB', rating: 81, isCaptain: false, photo: '' },
-      { id: 6, name: 'Rodrigo De Paul', number: 7, pos: 'CDM', rating: 86, isCaptain: false, photo: '' },
-      { id: 7, name: 'Enzo Fernández', number: 24, pos: 'CM', rating: 85, isCaptain: false, photo: '' },
-      { id: 8, name: 'Alexis Mac Allister', number: 20, pos: 'CM', rating: 84, isCaptain: false, photo: '' },
-      { id: 9, name: 'Ángel Di María', number: 11, pos: 'RW', rating: 87, isCaptain: false, photo: '' },
-      { id: 10, name: 'Lionel Messi', number: 10, pos: 'ST', rating: 96, isCaptain: true, photo: '' },
-      { id: 11, name: 'Julián Álvarez', number: 9, pos: 'LW', rating: 86, isCaptain: false, photo: '' },
+      { id: 1, name: 'Emiliano Martínez', number: 23, pos: 'GK', isGoalkeeper: true, isCaptain: false, photo: '' },
+      { id: 2, name: 'Nahuel Molina', number: 26, pos: 'RB', isCaptain: false, photo: '' },
+      { id: 3, name: 'Cristian Romero', number: 13, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 4, name: 'Nicolas Otamendi', number: 19, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 5, name: 'Nicolas Tagliafico', number: 3, pos: 'LB', isCaptain: false, photo: '' },
+      { id: 6, name: 'Rodrigo De Paul', number: 7, pos: 'CDM', isCaptain: false, photo: '' },
+      { id: 7, name: 'Enzo Fernández', number: 24, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 8, name: 'Alexis Mac Allister', number: 20, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 9, name: 'Ángel Di María', number: 11, pos: 'RW', isCaptain: false, photo: '' },
+      { id: 10, name: 'Lionel Messi', number: 10, pos: 'ST', isCaptain: true, photo: '' },
+      { id: 11, name: 'Julián Álvarez', number: 9, pos: 'LW', isCaptain: false, photo: '' }
     ],
     bench: [
       { id: 101, name: 'Franco Armani', number: 1, pos: 'GK' },
       { id: 102, name: 'Gonzalo Montiel', number: 4, pos: 'RB' },
       { id: 103, name: 'Leandro Paredes', number: 5, pos: 'CM' },
-      { id: 104, name: 'Lautaro Martínez', number: 22, pos: 'ST' },
-      { id: 105, name: 'Paulo Dybala', number: 21, pos: 'CAM' },
+      { id: 104, name: 'Lautaro Martínez', number: 22, pos: 'ST' }
     ]
   },
   {
@@ -133,11 +171,11 @@ export const SQUAD_PRESETS = [
     matchInfo: 'Premier League 2003-04',
     formationId: '4-4-2',
     kitStyle: {
-      primaryColor: '#db0007',
+      primaryColor: '#ef4444',
       secondaryColor: '#ffffff',
       sleeveColor: '#ffffff',
       collarColor: '#ffffff',
-      pattern: 'sleeves-accent',
+      pattern: 'solid',
       numberColor: '#ffffff'
     },
     gkKitStyle: {
@@ -147,24 +185,23 @@ export const SQUAD_PRESETS = [
       numberColor: '#ffffff'
     },
     players: [
-      { id: 1, name: 'Jens Lehmann', number: 1, pos: 'GK', rating: 87, isGoalkeeper: true, isCaptain: false, photo: '' },
-      { id: 2, name: 'Lauren', number: 12, pos: 'RB', rating: 83, isCaptain: false, photo: '' },
-      { id: 3, name: 'Sol Campbell', number: 23, pos: 'CB', rating: 89, isCaptain: false, photo: '' },
-      { id: 4, name: 'Kolo Touré', number: 28, pos: 'CB', rating: 86, isCaptain: false, photo: '' },
-      { id: 5, name: 'Ashley Cole', number: 3, pos: 'LB', rating: 88, isCaptain: false, photo: '' },
-      { id: 6, name: 'Freddie Ljungberg', number: 8, pos: 'RM', rating: 86, isCaptain: false, photo: '' },
-      { id: 7, name: 'Patrick Vieira', number: 4, pos: 'CM', rating: 91, isCaptain: true, photo: '' },
-      { id: 8, name: 'Gilberto Silva', number: 19, pos: 'CM', rating: 86, isCaptain: false, photo: '' },
-      { id: 9, name: 'Robert Pires', number: 7, pos: 'LM', rating: 89, isCaptain: false, photo: '' },
-      { id: 10, name: 'Dennis Bergkamp', number: 10, pos: 'ST', rating: 92, isCaptain: false, photo: '' },
-      { id: 11, name: 'Thierry Henry', number: 14, pos: 'ST', rating: 95, isCaptain: false, photo: '' },
+      { id: 1, name: 'Jens Lehmann', number: 1, pos: 'GK', isGoalkeeper: true, isCaptain: false, photo: '' },
+      { id: 2, name: 'Lauren', number: 12, pos: 'RB', isCaptain: false, photo: '' },
+      { id: 3, name: 'Sol Campbell', number: 23, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 4, name: 'Kolo Touré', number: 28, pos: 'CB', isCaptain: false, photo: '' },
+      { id: 5, name: 'Ashley Cole', number: 3, pos: 'LB', isCaptain: false, photo: '' },
+      { id: 6, name: 'Freddie Ljungberg', number: 8, pos: 'RM', isCaptain: false, photo: '' },
+      { id: 7, name: 'Patrick Vieira', number: 4, pos: 'CM', isCaptain: true, photo: '' },
+      { id: 8, name: 'Gilberto Silva', number: 19, pos: 'CM', isCaptain: false, photo: '' },
+      { id: 9, name: 'Robert Pires', number: 7, pos: 'LM', isCaptain: false, photo: '' },
+      { id: 10, name: 'Dennis Bergkamp', number: 10, pos: 'ST', isCaptain: false, photo: '' },
+      { id: 11, name: 'Thierry Henry', number: 14, pos: 'ST', isCaptain: false, photo: '' }
     ],
     bench: [
-      { id: 101, name: 'Graham Stack', number: 13, pos: 'GK' },
-      { id: 102, name: 'Martin Keown', number: 5, pos: 'CB' },
-      { id: 103, name: 'Ray Parlour', number: 15, pos: 'CM' },
-      { id: 104, name: 'Edu Gaspar', number: 17, pos: 'CM' },
-      { id: 105, name: 'Nwankwo Kanu', number: 25, pos: 'ST' },
+      { id: 101, name: 'Martin Keown', number: 5, pos: 'CB' },
+      { id: 102, name: 'Ray Parlour', number: 15, pos: 'CM' },
+      { id: 103, name: 'Edu Gaspar', number: 17, pos: 'CM' },
+      { id: 104, name: 'Nwankwo Kanu', number: 25, pos: 'ST' }
     ]
   }
 ];

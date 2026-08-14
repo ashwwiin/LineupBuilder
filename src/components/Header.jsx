@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { toPng, toJpeg } from 'html-to-image';
+import { toPng, toCanvas } from 'html-to-image';
 import confetti from 'canvas-confetti';
 import {
   Download,
@@ -12,7 +12,12 @@ import {
   Maximize2,
   Minimize2,
   Bookmark,
-  FolderOpen
+  FolderOpen,
+  Menu,
+  X,
+  User,
+  LogOut,
+  Cloud
 } from 'lucide-react';
 
 export default function Header({
@@ -24,13 +29,17 @@ export default function Header({
   onToggleHalfPitch,
   onSaveSquad,
   savedSquads = [],
-  onLoadSavedSquad
+  onLoadSavedSquad,
+  user,
+  onOpenAuthModal,
+  onSignOut
 }) {
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showSavedMenu, setShowSavedMenu] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Reliable High-Resolution Export Handler with Image Pre-loading & Dual-Pass Rendering
   const handleExport = async (format = 'png') => {
@@ -76,36 +85,59 @@ export default function Header({
       await toPng(node, { quality: 0.9, pixelRatio: 1.5, cacheBust: true, filter });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // 3. Second run generates the final crisp export image
-      const dataUrl = format === 'jpeg' 
-        ? await toJpeg(node, exportOptions)
-        : await toPng(node, exportOptions);
-
-      // Create download link
-      const link = document.createElement('a');
-      const filename = `${(squadState.teamInfo.teamName || 'tactix-lineup')
+      // 3. Second run generates a real HTML5 Canvas
+      const canvas = await toCanvas(node, exportOptions);
+      const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const ext = format === 'jpeg' ? 'jpg' : 'png';
+      const cleanTeamName = (squadState?.teamInfo?.teamName || 'tactix-lineup')
         .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-')}-${Date.now()}.${format}`;
-      link.download = filename;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        .replace(/[^a-z0-9]/g, '-');
+      const filename = `${cleanTeamName}-${Date.now()}.${ext}`;
 
-      // Celebration confetti
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+      // Convert Canvas directly to Blob (Native browser binary image creation)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            alert('Export failed to generate image blob. Please try again.');
+            return;
+          }
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = blobUrl;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+          }, 10000);
+
+          // Celebration confetti
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        },
+        mimeType,
+        0.98
+      );
     } catch (err) {
       console.error('Export error:', err);
       try {
-        const fallbackUrl = await toPng(node, { quality: 0.9, cacheBust: true });
-        const link = document.createElement('a');
-        link.download = `tactix-lineup-${Date.now()}.png`;
-        link.href = fallbackUrl;
-        link.click();
+        const fallbackCanvas = await toCanvas(node, { quality: 0.9, cacheBust: true });
+        fallbackCanvas.toBlob((fallbackBlob) => {
+          if (!fallbackBlob) return;
+          const fallbackUrl = URL.createObjectURL(fallbackBlob);
+          const link = document.createElement('a');
+          link.download = `tactix-lineup-${Date.now()}.png`;
+          link.href = fallbackUrl;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(fallbackUrl), 10000);
+        }, 'image/png');
       } catch (fallbackErr) {
         alert('Could not export image. Please try again.');
       }
@@ -128,31 +160,31 @@ export default function Header({
   };
 
   return (
-    <header className="w-full bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-4 py-3 sticky top-0 z-40 shadow-2xl">
-      <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-3">
+    <header className="w-full bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-3 sm:px-4 py-2.5 sm:py-3 sticky top-0 z-40 shadow-2xl">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-2">
         {/* LOGO & BRAND */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center">
             <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-emerald-400" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
             </div>
           </div>
 
           <div>
-            <h1 className="font-heading text-base sm:text-lg font-black text-slate-100 tracking-tight leading-none my-0 flex items-center gap-2">
+            <h1 className="font-heading text-base sm:text-lg font-black text-slate-100 tracking-tight leading-none my-0 flex items-center gap-1.5 sm:gap-2">
               Tactix
-              <span className="text-emerald-400 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+              <span className="text-emerald-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
                 PRO
               </span>
             </h1>
-            <p className="text-[10px] text-slate-400 font-medium hidden sm:block my-0 mt-0.5">
+            <p className="text-[10px] text-slate-400 font-medium hidden md:block my-0 mt-0.5">
               Tactical Football Lineup & Matchday Graphics Builder
             </p>
           </div>
         </div>
 
-        {/* ACTION TOOLBAR */}
-        <div className="flex items-center gap-2 flex-wrap">
+        {/* DESKTOP ACTION TOOLBAR (Hidden on mobile) */}
+        <div className="hidden md:flex items-center gap-2">
           {/* Pitch Mode Toggle */}
           <button
             onClick={onToggleHalfPitch}
@@ -164,7 +196,7 @@ export default function Header({
             title="Toggle between Full Ground and Half Pitch view"
           >
             {isHalfPitch ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            <span className="hidden xs:inline sm:inline">{isHalfPitch ? 'Half Pitch' : 'Full Pitch'}</span>
+            <span>{isHalfPitch ? 'Half Pitch' : 'Full Pitch'}</span>
           </button>
 
           {/* Quick Save Squad Button */}
@@ -178,7 +210,7 @@ export default function Header({
             title="Save current squad lineup to LocalStorage"
           >
             <Bookmark className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">{savedToast ? 'Squad Saved!' : 'Save Lineup'}</span>
+            <span>{savedToast ? 'Squad Saved!' : 'Save Lineup'}</span>
           </button>
 
           {/* Load Saved Squads Dropdown */}
@@ -190,7 +222,7 @@ export default function Header({
                 title="Load a saved squad"
               >
                 <FolderOpen className="w-4 h-4 text-sky-400" />
-                <span className="hidden sm:inline">Saved ({savedSquads.length})</span>
+                <span>Saved ({savedSquads.length})</span>
               </button>
 
               {showSavedMenu && (
@@ -236,16 +268,43 @@ export default function Header({
                 : 'bg-slate-950 hover:bg-slate-800 text-slate-200 border-slate-800'
             }`}
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
-            <span className="hidden sm:inline">{copied ? 'Link Copied!' : 'Share'}</span>
+            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4 text-slate-300" />}
+            <span>{copied ? 'Link Copied!' : 'Share'}</span>
           </button>
+
+          {/* User Authentication Status / Login */}
+          {user ? (
+            <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-black uppercase border border-emerald-500/40">
+                  {user.email ? user.email[0] : 'U'}
+                </div>
+                <span className="max-w-[120px] truncate">{user.email?.split('@')[0]}</span>
+              </div>
+              <button
+                onClick={onSignOut}
+                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuthModal}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-extrabold transition-all cursor-pointer shadow-md shadow-emerald-500/10"
+            >
+              <User className="w-4 h-4" />
+              <span>Sign In</span>
+            </button>
+          )}
 
           {/* High-Res Export Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
               disabled={isExporting}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all cursor-pointer disabled:opacity-50"
             >
               {isExporting ? (
                 <div className="w-4 h-4 rounded-full border-2 border-slate-950 border-t-transparent animate-spin" />
@@ -283,7 +342,194 @@ export default function Header({
             )}
           </div>
         </div>
+
+        {/* MOBILE CONTROLS BAR (< md) */}
+        <div className="flex md:hidden items-center gap-2">
+          {/* Main Mobile Export Button */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              disabled={isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg cursor-pointer disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export</span>
+            </button>
+
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-1.5 z-50">
+                <button
+                  onClick={() => handleExport('png')}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-emerald-400 rounded-lg flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
+                    PNG Image
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleExport('jpeg')}
+                  className="w-full text-left px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-emerald-400 rounded-lg flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <Camera className="w-3.5 h-3.5 text-amber-400" />
+                    JPEG Image
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Hamburger Menu Toggle Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white cursor-pointer"
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
+
+      {/* MOBILE SLIDE-OUT / POPUP NAVIGATION MENU */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 top-[53px] z-50 bg-slate-950/95 backdrop-blur-2xl p-4 flex flex-col justify-between animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="space-y-3">
+            <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider px-1">
+              Account & Tactical Options
+            </div>
+
+            {/* User Account / Login Mobile */}
+            {user ? (
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black uppercase border border-emerald-500/40">
+                    {user.email ? user.email[0] : 'U'}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-slate-100">{user.email?.split('@')[0]}</span>
+                    <span className="text-[9px] text-slate-400">Cloud Sync Active</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    onSignOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-slate-950 text-rose-400 border border-slate-800 text-xs font-bold flex items-center gap-1"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  onOpenAuthModal();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20"
+              >
+                <User className="w-4 h-4" />
+                <span>Sign In to Cloud Sync</span>
+              </button>
+            )}
+
+            {/* Pitch View Toggle */}
+            <button
+              onClick={() => {
+                onToggleHalfPitch();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
+            >
+              <div className="flex items-center gap-2.5">
+                {isHalfPitch ? <Minimize2 className="w-4 h-4 text-emerald-400" /> : <Maximize2 className="w-4 h-4 text-emerald-400" />}
+                <span>Pitch Mode</span>
+              </div>
+              <span className="text-[11px] font-mono text-emerald-400">
+                {isHalfPitch ? 'Half Pitch' : 'Full Pitch'}
+              </span>
+            </button>
+
+            {/* Save Lineup */}
+            <button
+              onClick={() => {
+                handleQuickSave();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
+            >
+              <div className="flex items-center gap-2.5">
+                <Bookmark className="w-4 h-4 text-amber-400" />
+                <span>Save Squad Lineup</span>
+              </div>
+              <span className="text-[10px] text-slate-400">LocalStorage</span>
+            </button>
+
+            {/* Share Link */}
+            <button
+              onClick={() => {
+                handleCopyLink();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-200"
+            >
+              <div className="flex items-center gap-2.5">
+                <Share2 className="w-4 h-4 text-sky-400" />
+                <span>Share Squad Link</span>
+              </div>
+              <span className="text-[10px] text-emerald-400">{copied ? 'Copied!' : 'Copy URL'}</span>
+            </button>
+
+            {/* Saved Squads Section */}
+            {savedSquads.length > 0 && (
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                <div className="text-[11px] font-bold text-slate-300 flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4 text-sky-400" />
+                  Load Saved Squad ({savedSquads.length})
+                </div>
+                <div className="space-y-1 max-h-36 overflow-y-auto pt-1">
+                  {savedSquads.map((squad) => (
+                    <button
+                      key={squad.id}
+                      onClick={() => {
+                        onLoadSavedSquad(squad);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left p-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center justify-between"
+                    >
+                      <span className="truncate">{squad.name}</span>
+                      <span className="text-[9px] text-emerald-400 font-mono">{squad.formationId}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Reset Squad */}
+            <button
+              onClick={() => {
+                onResetSquad();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-rose-400 hover:bg-rose-500/10"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reset Lineup to Default</span>
+            </button>
+          </div>
+
+          <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <span className="text-[11px] text-slate-500 font-medium">Tactix PRO • Tactical Pitch</span>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 text-xs font-bold border border-slate-800"
+            >
+              Close Menu
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
