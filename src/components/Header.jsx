@@ -393,8 +393,14 @@ export default function Header({
 
       {/* MOBILE FULL-HEIGHT RIGHT SLIDE-OVER NAVIGATION MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-sm h-full bg-slate-950 border-l border-slate-800 p-5 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-300">
+        <div
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="md:hidden fixed inset-0 z-[100] flex justify-end bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm h-full bg-slate-950 border-l border-slate-800 p-5 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-300"
+          >
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-2">

@@ -585,12 +585,12 @@ export default function App() {
             formationId={formationId}
             players={players}
             selectedPlayerId={selectedPlayerId}
-            onSelectPlayer={(p) => {
+            onSelectPlayer={(p, opts = {}) => {
               const pId = typeof p === 'object' && p !== null ? p.id : p;
               setSelectedPlayerId(pId);
               setSelectedSubId(null);
               setActiveTab('player');
-              if (window.innerWidth < 1280) {
+              if (opts.openMobileDrawer && window.innerWidth < 1280) {
                 setIsMobileControlsOpen(true);
               }
             }}
@@ -610,13 +610,13 @@ export default function App() {
             bench={bench}
             pitchPlayers={players}
             selectedSubId={selectedSubId}
-            onSelectSub={(sub) => {
+            onSelectSub={(sub, opts = {}) => {
               if (sub) {
                 const subId = typeof sub === 'object' ? sub.id : sub;
                 setSelectedSubId(subId);
                 setSelectedPlayerId(null);
                 setActiveTab('player');
-                if (window.innerWidth < 1280) {
+                if (opts.openMobileDrawer && window.innerWidth < 1280) {
                   setIsMobileControlsOpen(true);
                 }
               } else {
@@ -670,8 +670,14 @@ export default function App() {
 
       {/* MOBILE FULL-HEIGHT LEFT SLIDE-OVER DRAWER FOR ROSTER & BENCH */}
       {isMobileRosterOpen && (
-        <div className="xl:hidden fixed inset-0 z-50 flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-sm h-full bg-slate-900 border-r border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-left duration-300">
+        <div
+          onClick={() => setIsMobileRosterOpen(false)}
+          className="xl:hidden fixed inset-0 z-[90] flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm h-full bg-slate-900 border-r border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-left duration-300"
+          >
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-emerald-400" />
@@ -723,8 +729,14 @@ export default function App() {
 
       {/* MOBILE FULL-HEIGHT RIGHT SLIDE-OVER DRAWER FOR CONTROLS & PLAYER EDITOR */}
       {isMobileControlsOpen && (
-        <div className="xl:hidden fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-md h-full bg-slate-900 border-l border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-right duration-300">
+        <div
+          onClick={() => setIsMobileControlsOpen(false)}
+          className="xl:hidden fixed inset-0 z-[90] flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md h-full bg-slate-900 border-l border-slate-800 p-4 overflow-y-auto flex flex-col animate-in slide-in-from-right duration-300"
+          >
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-emerald-400" />

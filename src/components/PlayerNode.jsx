@@ -19,7 +19,7 @@ export default function PlayerNode({
 
   const handlePointerDown = (e) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-    onSelect(player);
+    onSelect(player, { openMobileDrawer: false });
     if (onDragStart) {
       onDragStart(e, player.id);
     }

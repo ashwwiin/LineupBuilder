@@ -93,6 +93,10 @@ export default function PitchCanvas({
     const pitchElement = pitchRef.current;
     if (!pitchElement) return;
 
+    const startClientX = e.clientX;
+    const startClientY = e.clientY;
+    let isMoved = false;
+
     // Initial position of dragged player before move
     const initialPlayer = players.find((p) => p.id === playerId);
     const startX = initialPlayer ? initialPlayer.x : 50;
@@ -101,6 +105,14 @@ export default function PitchCanvas({
     let currentTargetId = null;
 
     const handlePointerMove = (moveEvent) => {
+      const dist = Math.hypot(
+        moveEvent.clientX - startClientX,
+        moveEvent.clientY - startClientY
+      );
+      if (dist > 5) {
+        isMoved = true;
+      }
+
       const rect = pitchElement.getBoundingClientRect();
       let x = ((moveEvent.clientX - rect.left) / rect.width) * 100;
       let y = ((moveEvent.clientY - rect.top) / rect.height) * 100;
@@ -131,15 +143,18 @@ export default function PitchCanvas({
       setActiveDragId(null);
       setHoveredSwapId(null);
 
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+
       if (currentTargetId && onSwapPlayers) {
         // Revert dragged player position to original spot
         onUpdatePlayerPosition(playerId, startX, startY);
         // Execute player spot swap
         onSwapPlayers(playerId, currentTargetId);
+      } else if (!isMoved && onSelectPlayer) {
+        // Pure tap: open player details edit drawer on mobile
+        onSelectPlayer(playerId, { openMobileDrawer: true });
       }
-
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
     };
 
     window.addEventListener('pointermove', handlePointerMove);
