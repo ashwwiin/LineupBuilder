@@ -525,8 +525,8 @@ export default function App() {
         }}
       />
 
-      {/* MOBILE / TABLET QUICK ACTION BAR (Visible on screens < 1280px) */}
-      <div className="xl:hidden max-w-[1600px] w-full mx-auto px-3 pt-3">
+      {/* MOBILE / TABLET QUICK ACTION BAR (Visible on screens < 1024px) */}
+      <div className="lg:hidden max-w-[1600px] w-full mx-auto px-3 pt-3">
         <div className="flex items-center gap-2 p-1.5 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
           <button
             onClick={() => setIsMobileRosterOpen(true)}
@@ -547,9 +547,9 @@ export default function App() {
       </div>
 
       {/* MAIN APP WORKSPACE CONTENT */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-6 flex flex-col xl:flex-row gap-4 sm:gap-6 overflow-hidden">
-        {/* DESKTOP LEFT COLUMN: ROSTER LIST PANEL */}
-        <div className="hidden xl:block w-72 shrink-0">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-6 flex flex-col lg:flex-row gap-4 sm:gap-6 overflow-hidden">
+        {/* DESKTOP / LAPTOP LEFT COLUMN: ROSTER LIST PANEL */}
+        <div className="hidden lg:block w-64 xl:w-72 shrink-0">
           <LeftRosterPanel
             teamInfo={teamInfo}
             setTeamInfo={setTeamInfo}
@@ -590,7 +590,7 @@ export default function App() {
               setSelectedPlayerId(pId);
               setSelectedSubId(null);
               setActiveTab('player');
-              if (opts.openMobileDrawer && window.innerWidth < 1280) {
+              if (opts.openMobileDrawer && window.innerWidth < 1024) {
                 setIsMobileControlsOpen(true);
               }
             }}
@@ -616,7 +616,7 @@ export default function App() {
                 setSelectedSubId(subId);
                 setSelectedPlayerId(null);
                 setActiveTab('player');
-                if (opts.openMobileDrawer && window.innerWidth < 1280) {
+                if (opts.openMobileDrawer && window.innerWidth < 1024) {
                   setIsMobileControlsOpen(true);
                 }
               } else {
@@ -632,8 +632,8 @@ export default function App() {
           />
         </div>
 
-        {/* DESKTOP RIGHT COLUMN: CONTROL SIDEBAR PANEL */}
-        <div className="hidden xl:block w-96 shrink-0">
+        {/* DESKTOP / LAPTOP RIGHT COLUMN: CONTROL SIDEBAR PANEL */}
+        <div className="hidden lg:block w-80 xl:w-96 shrink-0">
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -672,7 +672,7 @@ export default function App() {
       {isMobileRosterOpen && (
         <div
           onClick={() => setIsMobileRosterOpen(false)}
-          className="xl:hidden fixed inset-0 z-[90] flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+          className="lg:hidden fixed inset-0 z-[90] flex justify-start bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -731,7 +731,7 @@ export default function App() {
       {isMobileControlsOpen && (
         <div
           onClick={() => setIsMobileControlsOpen(false)}
-          className="xl:hidden fixed inset-0 z-[90] flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+          className="lg:hidden fixed inset-0 z-[90] flex justify-end bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
         >
           <div
             onClick={(e) => e.stopPropagation()}
