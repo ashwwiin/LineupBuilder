@@ -513,6 +513,8 @@ export default function App() {
         user={user}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onSignOut={handleSignOut}
+        onOpenMobileControls={() => setIsMobileControlsOpen(true)}
+        onOpenMobileRoster={() => setIsMobileRosterOpen(true)}
       />
 
       {/* AUTHENTICATION MODAL */}

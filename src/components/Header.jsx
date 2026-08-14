@@ -32,7 +32,9 @@ export default function Header({
   onLoadSavedSquad,
   user,
   onOpenAuthModal,
-  onSignOut
+  onSignOut,
+  onOpenMobileControls,
+  onOpenMobileRoster
 }) {
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -183,8 +185,8 @@ export default function Header({
           </div>
         </div>
 
-        {/* DESKTOP ACTION TOOLBAR (Hidden on mobile) */}
-        <div className="hidden md:flex items-center gap-2">
+        {/* DESKTOP ACTION TOOLBAR (Hidden on mobile < 1024px) */}
+        <div className="hidden lg:flex items-center gap-2">
           {/* Pitch Mode Toggle */}
           <button
             onClick={onToggleHalfPitch}
@@ -343,8 +345,8 @@ export default function Header({
           </div>
         </div>
 
-        {/* MOBILE CONTROLS BAR (< md) */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* MOBILE CONTROLS BAR (< lg) */}
+        <div className="flex lg:hidden items-center gap-2">
           {/* Main Mobile Export Button */}
           <div className="relative">
             <button
@@ -395,11 +397,11 @@ export default function Header({
       {isMobileMenuOpen && (
         <div
           onClick={() => setIsMobileMenuOpen(false)}
-          className="md:hidden fixed inset-0 z-[100] flex justify-end bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-200"
+          className="lg:hidden fixed inset-0 z-[100] flex justify-end bg-slate-950/95 backdrop-blur-xl animate-in fade-in duration-200"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm h-full bg-slate-950 border-l border-slate-800 p-5 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-300"
+            className="w-full sm:max-w-sm h-full bg-slate-950 border-l border-slate-800 p-5 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-300"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -416,6 +418,28 @@ export default function Header({
                   className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white cursor-pointer"
                 >
                   <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Mobile Drawer Quick Links */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (onOpenMobileControls) onOpenMobileControls();
+                  }}
+                  className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-extrabold shadow-md cursor-pointer"
+                >
+                  <span>⚙️ Controls</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (onOpenMobileRoster) onOpenMobileRoster();
+                  }}
+                  className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-bold cursor-pointer"
+                >
+                  <span>📋 Roster</span>
                 </button>
               </div>
 
