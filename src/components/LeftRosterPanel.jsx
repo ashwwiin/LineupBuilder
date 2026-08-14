@@ -1,12 +1,13 @@
 import React from 'react';
-import { Shield, Users, Trophy, Crown, Sparkles } from 'lucide-react';
+import { Shield, Users, Trophy, Crown, Sparkles, ArrowLeftRight } from 'lucide-react';
 
 export default function LeftRosterPanel({
   teamInfo,
   players = [],
   selectedPlayerId,
   onSelectPlayer,
-  formationId
+  formationId,
+  onSwapPlayers
 }) {
   return (
     <div className="w-full shrink-0 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col justify-between h-full select-none">
@@ -94,28 +95,60 @@ export default function LeftRosterPanel({
                 )}
 
                 {/* Name & Position */}
-                <div className="overflow-hidden flex-1 flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="text-xs font-bold truncate leading-tight">
-                      {p.name || `Player ${p.number}`}
-                    </span>
-                    {p.isCaptain && (
-                      <span
-                        className="bg-amber-400 text-slate-950 text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 shadow-md"
-                        title="Team Captain"
-                      >
-                        C
+                <div className="overflow-hidden flex-1 flex flex-col justify-center">
+                  <div className="flex items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="text-xs font-bold truncate leading-tight">
+                        {p.name || `Player ${p.number}`}
                       </span>
-                    )}
+                      {p.isCaptain && (
+                        <span
+                          className="bg-amber-400 text-slate-950 text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 shadow-md"
+                          title="Team Captain"
+                        >
+                          C
+                        </span>
+                      )}
+                    </div>
+
+                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded shrink-0 ${
+                      isGK
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}>
+                      {p.pos}
+                    </span>
                   </div>
 
-                  <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded shrink-0 ${
-                    isGK
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                      : 'bg-slate-800 text-slate-400 border border-slate-700'
-                  }`}>
-                    {p.pos}
-                  </span>
+                  {/* Inline Player Swap Option */}
+                  {isSelected && onSwapPlayers && (
+                    <div
+                      className="mt-2 pt-1.5 border-t border-emerald-500/30 flex items-center justify-between gap-1.5 animate-in fade-in duration-150"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
+                        <ArrowLeftRight className="w-3 h-3 text-emerald-400" /> Swap spot:
+                      </span>
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            onSwapPlayers(p.id, Number(e.target.value));
+                            e.target.value = '';
+                          }
+                        }}
+                        className="bg-slate-950 border border-slate-700 text-slate-200 text-[10px] font-bold rounded-lg px-2 py-0.5 focus:outline-none focus:border-emerald-500 max-w-[130px]"
+                      >
+                        <option value="">Choose player...</option>
+                        {players
+                          .filter((other) => other.id !== p.id)
+                          .map((other) => (
+                            <option key={other.id} value={other.id}>
+                              #{other.number} {other.name} ({other.pos})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -323,6 +323,48 @@ export default function App() {
     setBench((prev) => prev.map((b) => (b.id === subId ? updatedSub : b)));
   };
 
+  // Swap Player details between two starting XI pitch players (tactical pitch coordinates x,y stay fixed)
+  const handleSwapPitchPlayers = (player1Id, player2Id) => {
+    const p1Id = Number(player1Id);
+    const p2Id = Number(player2Id);
+    if (!p1Id || !p2Id || p1Id === p2Id) return;
+
+    setPlayers((prevPlayers) => {
+      const idx1 = prevPlayers.findIndex((p) => p.id === p1Id);
+      const idx2 = prevPlayers.findIndex((p) => p.id === p2Id);
+      if (idx1 === -1 || idx2 === -1) return prevPlayers;
+
+      const updated = [...prevPlayers];
+      const p1 = updated[idx1];
+      const p2 = updated[idx2];
+
+      // Keep tactical pitch positions (x, y) fixed, swap player details (name, number, photo, etc.)
+      updated[idx1] = {
+        ...p1,
+        name: p2.name,
+        number: p2.number,
+        photo: p2.photo,
+        photoZoom: p2.photoZoom,
+        photoOffsetX: p2.photoOffsetX,
+        photoOffsetY: p2.photoOffsetY,
+        isCaptain: p2.isCaptain
+      };
+
+      updated[idx2] = {
+        ...p2,
+        name: p1.name,
+        number: p1.number,
+        photo: p1.photo,
+        photoZoom: p1.photoZoom,
+        photoOffsetX: p1.photoOffsetX,
+        photoOffsetY: p1.photoOffsetY,
+        isCaptain: p1.isCaptain
+      };
+
+      return updated;
+    });
+  };
+
   // Load Preset
   const handleLoadPreset = (preset) => {
     setTeamInfo({
@@ -520,10 +562,12 @@ export default function App() {
             setTeamInfo={setTeamInfo}
             players={players}
             selectedPlayerId={selectedPlayerId}
-            onSelectPlayer={(id) => {
-              setSelectedPlayerId(id);
+            onSelectPlayer={(p) => {
+              setSelectedPlayerId(p?.id || p);
               setSelectedSubId(null);
             }}
+            formationId={formationId}
+            onSwapPlayers={handleSwapPitchPlayers}
           />
         </div>
 
@@ -591,6 +635,7 @@ export default function App() {
             onSaveSquad={handleSaveSquad}
             onLoadSavedSquad={handleLoadSavedSquad}
             onDeleteSavedSquad={handleDeleteSavedSquad}
+            onSwapPlayers={handleSwapPitchPlayers}
           />
         </div>
       </main>

@@ -16,7 +16,8 @@ import {
   Sparkles,
   Move,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  ArrowLeftRight
 } from 'lucide-react';
 
 export default function Sidebar({
@@ -45,10 +46,12 @@ export default function Sidebar({
   savedSquads = [],
   onSaveSquad,
   onLoadSavedSquad,
-  onDeleteSavedSquad
+  onDeleteSavedSquad,
+  onSwapPlayers
 }) {
   const [newSquadName, setNewSquadName] = useState('');
   const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [swapTargetId, setSwapTargetId] = useState('');
 
   // Handle Photo File Select (Opens Zoom & Crop Modal)
   const handlePhotoUpload = (e) => {
@@ -408,6 +411,50 @@ export default function Sidebar({
                     {selectedPlayer.isCaptain ? 'Captain (Armband C Active)' : 'Assign as Team Captain'}
                   </button>
                 </div>
+
+                {/* SWAP TACTICAL PLAYER SPOT */}
+                {onSwapPlayers && (
+                  <div className="pt-2 border-t border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-400" />
+                        Swap Player Spot
+                      </label>
+                      <span className="text-[10px] font-mono text-emerald-400">Fixed Pitch Spot</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 my-0">
+                      Swap #{selectedPlayer.number} {selectedPlayer.name}'s info with another player on the pitch.
+                    </p>
+                    <div className="flex gap-2">
+                      <select
+                        value={swapTargetId}
+                        onChange={(e) => setSwapTargetId(e.target.value)}
+                        className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                      >
+                        <option value="">Select player to swap...</option>
+                        {players
+                          .filter((p) => p.id !== selectedPlayer.id)
+                          .map((p) => (
+                            <option key={p.id} value={p.id}>
+                              #{p.number} {p.name} ({p.pos})
+                            </option>
+                          ))}
+                      </select>
+                      <button
+                        disabled={!swapTargetId}
+                        onClick={() => {
+                          if (swapTargetId) {
+                            onSwapPlayers(selectedPlayer.id, Number(swapTargetId));
+                            setSwapTargetId('');
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer shadow-md shadow-emerald-500/20"
+                      >
+                        <ArrowLeftRight className="w-3.5 h-3.5" /> Swap
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-8 text-xs text-slate-500 italic bg-slate-950/40 p-4 rounded-xl border border-slate-800">
