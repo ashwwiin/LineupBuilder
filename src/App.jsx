@@ -225,33 +225,42 @@ export default function App() {
     );
   };
 
-  // Player Detail Edit (Smart Same-Lineup Uniqueness via Swap)
+  // Player Detail Edit (Supports both Starting XI and Bench Substitutes)
   const handleUpdatePlayer = (updatedPlayer) => {
-    setPlayers((prev) => {
-      const existingPitchPlayer = prev.find(
-        (p) => p.id !== updatedPlayer.id && p.number === updatedPlayer.number
-      );
-      const currentPlayer = prev.find((p) => p.id === updatedPlayer.id);
+    const isXI = players.some((p) => p.id === updatedPlayer.id);
 
-      return prev.map((p) => {
-        if (p.id === updatedPlayer.id) {
-          return updatedPlayer;
-        }
+    if (isXI) {
+      setPlayers((prev) => {
+        const existingPitchPlayer = prev.find(
+          (p) => p.id !== updatedPlayer.id && p.number === updatedPlayer.number
+        );
+        const currentPlayer = prev.find((p) => p.id === updatedPlayer.id);
 
-        if (existingPitchPlayer && p.id === existingPitchPlayer.id && currentPlayer) {
-          return {
-            ...p,
-            number: currentPlayer.number
-          };
-        }
+        return prev.map((p) => {
+          if (p.id === updatedPlayer.id) {
+            return updatedPlayer;
+          }
 
-        if (updatedPlayer.isCaptain) {
-          return { ...p, isCaptain: false };
-        }
+          if (existingPitchPlayer && p.id === existingPitchPlayer.id && currentPlayer) {
+            return {
+              ...p,
+              number: currentPlayer.number
+            };
+          }
 
-        return p;
+          if (updatedPlayer.isCaptain) {
+            return { ...p, isCaptain: false };
+          }
+
+          return p;
+        });
       });
-    });
+    } else {
+      // Update substitute bench player
+      setBench((prev) =>
+        prev.map((b) => (b.id === updatedPlayer.id ? { ...b, ...updatedPlayer } : b))
+      );
+    }
   };
 
   // Select Pitch Player
@@ -482,7 +491,9 @@ export default function App() {
     navigator.clipboard.writeText(shareUrl);
   };
 
-  const selectedPlayer = players.find((p) => p.id === selectedPlayerId);
+  const selectedPlayer = selectedPlayerId
+    ? players.find((p) => p.id === selectedPlayerId)
+    : bench.find((b) => b.id === selectedSubId);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
@@ -567,10 +578,16 @@ export default function App() {
             onSelectPlayer={(p) => {
               setSelectedPlayerId(p?.id || p);
               setSelectedSubId(null);
+              setActiveTab('player');
+              if (window.innerWidth < 1280) setMobileTab('sidebar');
             }}
             onSelectSub={(sub) => {
-              setSelectedSubId(sub ? sub.id : null);
-              setSelectedPlayerId(null);
+              if (sub) {
+                setSelectedSubId(sub.id);
+                setSelectedPlayerId(null);
+                setActiveTab('player');
+                if (window.innerWidth < 1280) setMobileTab('sidebar');
+              }
             }}
             onAddSub={handleAddSub}
             onRemoveSub={handleRemoveSub}
@@ -591,6 +608,8 @@ export default function App() {
             onSelectPlayer={(id) => {
               setSelectedPlayerId(id);
               setSelectedSubId(null);
+              setActiveTab('player');
+              if (window.innerWidth < 1280) setMobileTab('sidebar');
             }}
             onUpdatePlayerPosition={handleUpdatePlayerPosition}
             onSwapPlayers={handleSwapPitchPlayers}
@@ -607,7 +626,16 @@ export default function App() {
           <SubstitutesBench
             bench={bench}
             selectedSubId={selectedSubId}
-            onSelectSub={(sub) => setSelectedSubId(sub ? sub.id : null)}
+            onSelectSub={(sub) => {
+              if (sub) {
+                setSelectedSubId(sub.id);
+                setSelectedPlayerId(null);
+                setActiveTab('player');
+                if (window.innerWidth < 1280) setMobileTab('sidebar');
+              } else {
+                setSelectedSubId(null);
+              }
+            }}
             onAddSub={handleAddSub}
             onRemoveSub={handleRemoveSub}
             onSwapWithPitch={handleSwapSubWithPitch}
